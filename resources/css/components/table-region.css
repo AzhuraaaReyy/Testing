@@ -1,0 +1,44 @@
+/*
+ * Wilayah tabel: loading & error hanya di area tabel (PRD 16.1–16.3).
+ * State: [data-state="ready|loading|error"], dikelola resources/js/components/table-region.ts.
+ */
+@layer components {
+    .table-region[data-state='loading'] [data-region-content] {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
+    .table-region-progress {
+        visibility: hidden;
+    }
+
+    .table-region[data-state='loading'] .table-region-progress {
+        visibility: visible;
+    }
+
+    .table-region-progress::after {
+        content: '';
+        display: block;
+        height: 100%;
+        width: 35%;
+        background: var(--color-primary);
+        animation: table-progress 1s ease-in-out infinite;
+    }
+}
+
+@keyframes table-progress {
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(290%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .table-region-progress::after {
+        width: 100%;
+        animation: none;
+    }
+}

@@ -1,0 +1,19 @@
+/*
+ * Entry stylesheet. Utility-first (Tailwind v4); CSS kustom hanya untuk hal yang tidak
+ * dapat dinyatakan sebagai utility (state shell berbasis atribut, animasi progress).
+ *
+ *   tokens.css               design tokens (@theme) — satu-satunya tempat nilai warna/font
+ *   base.css                 reset ringan, fokus, utility kustom, reduced motion
+ *   components/shell.css     Sidebar/drawer (organisms/sidebar)
+ *   components/table-region.css  loading & error tabel (organisms/table-region)
+ */
+@import 'tailwindcss';
+@import './tokens.css';
+@import './base.css';
+@import './components/shell.css';
+@import './components/table-region.css';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../../app/View/**/*.php';
+@source '../../app/Enums/**/*.php';

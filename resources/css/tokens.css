@@ -1,0 +1,37 @@
+/*
+ * Design tokens — Swiss Minimal, palet teal pendidikan.
+ * Komponen hanya memakai token semantik ini, tidak pernah hex mentah.
+ * Kontras teks (terhadap --color-surface #fff): ink 16.7:1, ink-muted 6.45:1, primary 5.47:1, danger 6.57:1.
+ * Warna primary Filament (Color::Teal di AdminPanelProvider) dibuat senada.
+ */
+@theme {
+    /* Satu keluarga font (Roboto) untuk judul & teks; hierarki dibentuk lewat ukuran dan ketebalan.
+       Panel Filament memakai font yang sama (->font('Roboto') di AdminPanelProvider). */
+    --font-sans: 'Roboto', ui-sans-serif, system-ui, sans-serif;
+
+    --color-canvas: #f4f5f3;
+    --color-surface: #ffffff;
+    --color-subtle: #f1f3f1;
+    --color-line: #e2e6e3;
+    --color-line-strong: #c8cfcb;
+
+    --color-ink: #15201e;
+    --color-ink-muted: #55615d;
+
+    --color-primary: #0f766e;
+    --color-primary-hover: #115e59;
+    --color-primary-soft: #e7f2f0;
+    --color-primary-ink: #0b4f4a;
+    --color-on-primary: #ffffff;
+
+    --color-danger: #b42318;
+    --color-danger-hover: #912018;
+    --color-danger-soft: #fef3f2;
+
+    --shadow-raised: 0 1px 2px rgb(21 32 30 / 0.06), 0 1px 1px rgb(21 32 30 / 0.04);
+    --shadow-overlay: 0 12px 32px -8px rgb(21 32 30 / 0.22), 0 2px 6px rgb(21 32 30 / 0.08);
+
+    --sidebar-width: 15.5rem;
+    --sidebar-width-collapsed: 4.25rem;
+    --navbar-height: 4rem;
+}
