@@ -99,6 +99,23 @@ describe('Siswa', function () {
         expect(User::query()->where('email', 'ani@sekolah.test')->sole()->role)->toBe(Role::Siswa);
     });
 
+    it('menolak password akun portal yang lemah (SEC-05)', function (string $password, string $pesan) {
+        $kelas = Kelas::factory()->create();
+
+        $this->postJson('/api/v1/siswa', [
+            'nis' => '00123', 'nama' => 'Ani', 'jenis_kelamin' => 'P', 'alamat' => 'Jl. A', 'kelas_id' => $kelas->id,
+            'akun' => ['email' => 'ani@sekolah.test', 'password' => $password],
+        ])
+            ->assertUnprocessable()
+            ->assertJsonPath('errors', fn (array $errors): bool => in_array($pesan, $errors['akun.password'], true));
+
+        expect(Siswa::query()->count())->toBe(0);
+    })->with([
+        'hanya angka' => ['12345678', 'Password harus memuat minimal satu huruf.'],
+        'tanpa angka' => ['rahasiasekali', 'Password harus memuat minimal satu angka.'],
+        'terlalu pendek' => ['abc1', 'Password minimal 8 karakter.'],
+    ]);
+
     it('memvalidasi dengan pesan Bahasa Indonesia (422)', function () {
         $kelasTrash = Kelas::factory()->create();
         $kelasTrash->delete();

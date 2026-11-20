@@ -4,9 +4,11 @@ namespace App\Providers;
 
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Number;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -33,5 +35,12 @@ class AppServiceProvider extends ServiceProvider
         // 3 kegagalan/15 menit oleh AuthenticateUserAction (PRD 4.5).
         RateLimiter::for('api', fn (Request $request): Limit => Limit::perMinute(self::BATAS_API_PER_MENIT)
             ->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip())));
+
+        // Aturan password akun baru/diubah (Admin & portal), SEC-05: min. 8, memuat huruf dan angka.
+        // Di production juga ditolak bila pernah bocor (Have I Been Pwned; hanya 5 karakter awal
+        // hash SHA-1 yang dikirim, bukan password-nya; bila layanan tak terjangkau, dianggap lolos).
+        Password::defaults(fn (): Password => App::isProduction()
+            ? Password::min(8)->letters()->numbers()->uncompromised()
+            : Password::min(8)->letters()->numbers());
     }
 }

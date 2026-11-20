@@ -30,7 +30,7 @@ final class BuatAdminCommand extends Command
         $data = [
             'name' => $this->option('nama') ?? text('Nama Admin', required: true),
             'email' => $this->option('email') ?? text('Email', required: true),
-            'password' => password('Password (min. 8 karakter)', required: true),
+            'password' => password('Password (min. 8 karakter, memuat huruf dan angka)', required: true),
             'password_confirmation' => password('Ulangi password', required: true),
         ];
 

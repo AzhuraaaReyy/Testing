@@ -5,6 +5,7 @@ namespace App\Http\Requests\DataMaster;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 /**
  * Aturan akun portal Guru/Siswa di form CRUD (PRD 22.2): email opsional (kosong = tanpa akun),
@@ -36,7 +37,7 @@ final class AkunPortalRequest extends FormRequest
     {
         return [
             'email' => ['nullable', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($akun?->getKey())],
-            'password' => [filled($email) && $akun === null ? 'required' : 'nullable', 'string', 'min:8'],
+            'password' => [filled($email) && $akun === null ? 'required' : 'nullable', 'string', Password::defaults()],
         ];
     }
 

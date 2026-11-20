@@ -718,7 +718,12 @@ components:
       description: Tanpa kunci `akun` = akun tidak diubah; email kosong = akun dihapus; password wajib saat akun baru.
       properties:
         email: { type: string, format: email, nullable: true, maxLength: 255 }
-        password: { type: string, nullable: true, minLength: 8 }
+        password:
+          type: string
+          nullable: true
+          minLength: 8
+          pattern: '^(?=.*\p{L})(?=.*\d).+$'
+          description: Min. 8 karakter, memuat huruf dan angka. Di production juga ditolak bila pernah bocor.
     KelasPayload:
       type: object
       required: [nama_kelas, tingkat]

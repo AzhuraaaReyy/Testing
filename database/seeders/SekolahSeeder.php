@@ -16,8 +16,13 @@ use Illuminate\Database\Seeder;
  */
 class SekolahSeeder extends Seeder
 {
+    use HanyaPengembangan;
+
     public function run(): void
     {
+        // Dicek juga di sini karena seeder ini bisa dipanggil langsung (db:seed --class=SekolahSeeder).
+        $this->tolakDiProduksi();
+
         $kelas = collect([
             [Tingkat::X, 'IPA', 'X IPA 1'], [Tingkat::X, 'IPA', 'X IPA 2'],
             [Tingkat::X, 'IPS', 'X IPS 1'], [Tingkat::X, 'IPS', 'X IPS 2'],

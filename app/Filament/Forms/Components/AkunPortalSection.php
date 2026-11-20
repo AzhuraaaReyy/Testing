@@ -43,7 +43,9 @@ class AkunPortalSection extends Section
                     ->revealable()
                     ->autocomplete('new-password')
                     ->dehydrated(fn (?string $state): bool => filled($state))
-                    ->helperText(fn (?Model $record): ?string => self::akunDari($record) ? 'Kosongkan bila tidak ingin mengubah password.' : null),
+                    ->helperText(fn (?Model $record): string => self::akunDari($record)
+                        ? 'Min. 8 karakter, memuat huruf dan angka. Kosongkan bila tidak ingin mengubah password.'
+                        : 'Min. 8 karakter, memuat huruf dan angka.'),
             ], fn (?Model $record = null, ?Get $get = null): array => AkunPortalRequest::aturan(self::akunDari($record), $get?->__invoke('email'))));
     }
 

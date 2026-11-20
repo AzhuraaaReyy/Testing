@@ -2,6 +2,7 @@
 
 use App\Enums\Role;
 use App\Exceptions\ApiExceptionRenderer;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\PartialResponse;
 use App\Support\SesiLogin;
 use Filament\Notifications\Notification;
@@ -21,6 +22,13 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Batas permintaan API: limiter "api" di AppServiceProvider (429 jika terlampaui).
         $middleware->throttleApi();
+
+        // Header keamanan (anti-clickjacking, nosniff, Referrer-Policy, HSTS produksi) di semua respons.
+        $middleware->append(SecurityHeaders::class);
+
+        // Hanya menerima Host header milik APP_URL (beserta subdomainnya), agar URL redirect/tautan
+        // tidak bisa dibuat memakai domain penyerang. Bawaan Laravel: tidak aktif di local & testing.
+        $middleware->trustHosts();
 
         // Dua pintu login: Admin di panel Filament, Guru/Siswa di portal Blade (/login).
         $middleware->redirectGuestsTo(fn (Request $request) => $request->is('portal', 'portal/*')

@@ -21,6 +21,7 @@ return [
     | (mis. 409 dari aturan bisnis), selain itu '4xx' / '5xx'.
     */
     'api' => [
+        '400' => 'Permintaan tidak valid.',
         '401' => 'Silakan login terlebih dahulu.',
         '403' => 'Anda tidak memiliki akses.',
         '404' => 'Endpoint tidak ditemukan.',

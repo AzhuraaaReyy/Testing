@@ -65,7 +65,7 @@ it('membatasi login 15 menit setelah 3 kegagalan dan mereset setelah berhasil', 
     $this->travel(16)->minutes();
 
     loginPortal($user->email)->assertRedirect(route('portal.dashboard'));
-    expect(RateLimiter::attempts('portal-login:siswa@sekolah.test|127.0.0.1'))->toBe(0);
+    expect(RateLimiter::attempts(AuthenticateUserAction::throttleKey($user->email, '127.0.0.1', PintuLogin::Portal)))->toBe(0);
 });
 
 it('menolak login Siswa yang berada di Trash', function () {

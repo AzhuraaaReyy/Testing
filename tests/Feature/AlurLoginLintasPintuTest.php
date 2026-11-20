@@ -5,6 +5,7 @@ use App\Enums\Role;
 use App\Filament\Pages\Auth\Login;
 use App\Models\User;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 
@@ -96,6 +97,47 @@ it('menampilkan petunjuk ke portal di halaman login Admin', function () {
         ->assertOk()
         ->assertSeeText('Guru atau Siswa?')
         ->assertSee('href="'.route('login').'"', escape: false);
+});
+
+it('memblokir password spraying: banyak email dari satu IP, lintas pintu (SEC-01)', function () {
+    $korban = User::factory()->siswa()->create();
+
+    // Satu password umum dicoba ke banyak email berbeda, bergantian portal dan API: tiap email hanya
+    // gagal sekali sehingga batas 3x per email tidak pernah tercapai.
+    foreach (range(1, AuthenticateUserAction::MAX_ATTEMPTS_PER_IP) as $i) {
+        $i % 2 === 0
+            ? $this->post('/login', ['email' => "akun{$i}@sekolah.test", 'password' => 'Sekolah123'])
+            : $this->postJson('/api/v1/login', ['email' => "akun{$i}@sekolah.test", 'password' => 'Sekolah123']);
+    }
+
+    // IP tersebut kini terkunci di semua pintu, bahkan untuk kredensial yang benar…
+    $this->post('/login', ['email' => $korban->email, 'password' => 'password'])
+        ->assertSessionHasErrors(['email' => 'Terlalu banyak percobaan login. Silakan coba lagi dalam 15 menit.']);
+    loginAdmin('admin-lain@sekolah.test')->assertSee('Terlalu banyak percobaan login');
+    $this->assertGuest();
+
+    // …sedangkan pengguna dari IP lain tidak terdampak.
+    $this->withServerVariables(['REMOTE_ADDR' => '198.51.100.7'])
+        ->post('/login', ['email' => $korban->email, 'password' => 'password'])
+        ->assertRedirect(route('portal.dashboard'));
+});
+
+it('tidak mereset penghitung per IP saat login berhasil (SEC-01)', function () {
+    $siswa = User::factory()->siswa()->create();
+
+    foreach (range(1, AuthenticateUserAction::MAX_ATTEMPTS_PER_IP - 1) as $i) {
+        $this->post('/login', ['email' => "akun{$i}@sekolah.test", 'password' => 'salah']);
+    }
+
+    $this->post('/login', ['email' => $siswa->email, 'password' => 'password'])->assertRedirect(route('portal.dashboard'));
+    $this->post(route('logout'));
+
+    expect(RateLimiter::attempts(AuthenticateUserAction::throttleKeyIp('127.0.0.1')))
+        ->toBe(AuthenticateUserAction::MAX_ATTEMPTS_PER_IP - 1);
+
+    $this->post('/login', ['email' => 'satu-lagi@sekolah.test', 'password' => 'salah']);
+    $this->post('/login', ['email' => $siswa->email, 'password' => 'password'])
+        ->assertSessionHasErrors(['email' => 'Terlalu banyak percobaan login. Silakan coba lagi dalam 15 menit.']);
 });
 
 it('memisahkan penghitung API dari portal dan Admin', function () {

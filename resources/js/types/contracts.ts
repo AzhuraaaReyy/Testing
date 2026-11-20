@@ -39,7 +39,7 @@ export interface BuatAdminPayload {
     name: string;
     /** required, format email, unik di users. */
     email: string;
-    /** required, min. 8, wajib dikonfirmasi (password_confirmation). */
+    /** required, min. 8, memuat huruf dan angka (production: belum pernah bocor), wajib dikonfirmasi (password_confirmation). */
     password: string;
 }
 
@@ -105,7 +105,7 @@ export interface PulihkanGuruPayload {
 export interface AkunPortalPayload {
     /** opsional; kosong = tanpa akun. */
     email?: string | null;
-    /** min. 8; wajib saat akun baru dibuat. */
+    /** min. 8, memuat huruf dan angka (production: belum pernah bocor); wajib saat akun baru dibuat. */
     password?: string | null;
 }
 

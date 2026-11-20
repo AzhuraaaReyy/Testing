@@ -120,6 +120,15 @@ describe('Siswa', function () {
             ->and($akun->name)->toBe('Ani Lestari');
     });
 
+    it('menolak password akun portal tanpa angka di form (SEC-05)', function () {
+        Livewire::test(CreateSiswa::class)
+            ->fillForm(dataSiswa(['akun' => ['email' => 'ani@sekolah.test', 'password' => 'rahasiasekali']]))
+            ->call('create')
+            ->assertHasFormErrors(['akun.password' => 'Password harus memuat minimal satu angka.']);
+
+        expect(Siswa::query()->count())->toBe(0);
+    });
+
     it('tidak membuat akun bila email dikosongkan', function () {
         Livewire::test(CreateSiswa::class)
             ->fillForm(dataSiswa())

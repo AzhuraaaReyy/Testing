@@ -3,10 +3,11 @@
 use App\Enums\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 
 it('membuat akun Admin yang bisa login ke panel', function () {
     $this->artisan('sekolah:buat-admin', ['--nama' => 'Kepala TU', '--email' => 'tu@sekolah.sch.id'])
-        ->expectsQuestion('Password (min. 8 karakter)', 'rahasia123')
+        ->expectsQuestion('Password (min. 8 karakter, memuat huruf dan angka)', 'rahasia123')
         ->expectsQuestion('Ulangi password', 'rahasia123')
         ->assertSuccessful();
 
@@ -20,7 +21,7 @@ it('menanyakan nama dan email bila tidak diberikan lewat opsi', function () {
     $this->artisan('sekolah:buat-admin')
         ->expectsQuestion('Nama Admin', 'Admin Dua')
         ->expectsQuestion('Email', 'admin2@sekolah.sch.id')
-        ->expectsQuestion('Password (min. 8 karakter)', 'rahasia123')
+        ->expectsQuestion('Password (min. 8 karakter, memuat huruf dan angka)', 'rahasia123')
         ->expectsQuestion('Ulangi password', 'rahasia123')
         ->assertSuccessful();
 
@@ -31,7 +32,7 @@ it('menolak data tidak valid tanpa membuat akun', function (array $opsi, string 
     User::factory()->create(['email' => 'ada@sekolah.sch.id']);
 
     $this->artisan('sekolah:buat-admin', $opsi)
-        ->expectsQuestion('Password (min. 8 karakter)', $password)
+        ->expectsQuestion('Password (min. 8 karakter, memuat huruf dan angka)', $password)
         ->expectsQuestion('Ulangi password', $ulang)
         ->expectsOutputToContain($pesan)
         ->assertFailed();
@@ -41,5 +42,32 @@ it('menolak data tidak valid tanpa membuat akun', function (array $opsi, string 
     'email dipakai' => [['--nama' => 'X', '--email' => 'ada@sekolah.sch.id'], 'rahasia123', 'rahasia123', 'Email sudah digunakan.'],
     'email tidak valid' => [['--nama' => 'X', '--email' => 'bukan-email'], 'rahasia123', 'rahasia123', 'Format Email tidak valid.'],
     'password pendek' => [['--nama' => 'X', '--email' => 'b@sekolah.sch.id'], 'pendek', 'pendek', 'Password minimal 8 karakter.'],
+    'hanya angka' => [['--nama' => 'X', '--email' => 'b@sekolah.sch.id'], '12345678', '12345678', 'Password harus memuat minimal satu huruf.'],
+    'tanpa angka' => [['--nama' => 'X', '--email' => 'b@sekolah.sch.id'], 'rahasiasekali', 'rahasiasekali', 'Password harus memuat minimal satu angka.'],
     'konfirmasi beda' => [['--nama' => 'X', '--email' => 'b@sekolah.sch.id'], 'rahasia123', 'rahasia999', 'Konfirmasi Password tidak cocok.'],
 ]);
+
+it('menolak password yang pernah bocor di production (SEC-05)', function () {
+    $this->app['env'] = 'production';
+    // Have I Been Pwned (k-anonymity): hanya 5 karakter awal SHA-1 yang dikirim; jawabannya daftar sisa hash.
+    $sha1 = strtoupper(sha1('rahasia123'));
+    Http::fake(['api.pwnedpasswords.com/range/'.substr($sha1, 0, 5) => Http::response(substr($sha1, 5).':12345')]);
+
+    $this->artisan('sekolah:buat-admin', ['--nama' => 'X', '--email' => 'b@sekolah.sch.id'])
+        ->expectsQuestion('Password (min. 8 karakter, memuat huruf dan angka)', 'rahasia123')
+        ->expectsQuestion('Ulangi password', 'rahasia123')
+        ->expectsOutputToContain('pernah bocor dalam kebocoran data')
+        ->assertFailed();
+
+    Http::assertSent(fn ($request): bool => ! str_contains($request->url(), 'rahasia123') && ! str_contains($request->url(), $sha1));
+    expect(User::query()->count())->toBe(0);
+});
+
+it('tidak menghubungi layanan password bocor di luar production', function () {
+    Http::preventStrayRequests();
+
+    $this->artisan('sekolah:buat-admin', ['--nama' => 'X', '--email' => 'b@sekolah.sch.id'])
+        ->expectsQuestion('Password (min. 8 karakter, memuat huruf dan angka)', 'rahasia123')
+        ->expectsQuestion('Ulangi password', 'rahasia123')
+        ->assertSuccessful();
+});
