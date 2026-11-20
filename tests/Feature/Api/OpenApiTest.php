@@ -4,7 +4,7 @@ use App\Enums\JenisKelamin;
 use App\Enums\JenisLaporan;
 use App\Enums\Role;
 use App\Enums\Tingkat;
-use App\Http\Requests\Auth\PortalLoginRequest;
+use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\DataMaster\AkunPortalRequest;
 use App\Http\Requests\DataMaster\GuruRequest;
 use App\Http\Requests\DataMaster\KelasRequest;
@@ -81,7 +81,7 @@ it('mendeskripsikan field payload persis seperti aturan FormRequest', function (
     expect(array_keys(skema($skema)['properties']))->toEqualCanonicalizing($aturan->keys()->all())
         ->and(collect(skema($skema)['required'] ?? [])->sort()->values()->all())->toBe($wajib);
 })->with([
-    ['LoginPayload', PortalLoginRequest::class],
+    ['LoginPayload', LoginRequest::class],
     ['KelasPayload', KelasRequest::class],
     ['SiswaPayload', SiswaRequest::class],
     ['GuruPayload', GuruRequest::class],

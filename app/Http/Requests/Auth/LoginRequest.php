@@ -5,12 +5,13 @@ namespace App\Http\Requests\Auth;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Payload login (PRD 4.3): portal Guru/Siswa (POST /login) dan form login panel Admin
- * (App\Filament\Pages\Auth\Login) memakai aturan & pesan yang sama dari sini.
+ * Payload login (PRD 4.3), satu sumber aturan & pesan untuk ketiga pintu login:
+ * portal Guru/Siswa (POST /login), panel Admin (App\Filament\Pages\Auth\Login),
+ * dan API (POST /api/v1/login).
  *
- * Cermin TypeScript: resources/js/types/contracts.ts → interface PortalLoginPayload.
+ * Cermin TypeScript: resources/js/types/contracts.ts → interface LoginPayload.
  */
-final class PortalLoginRequest extends FormRequest
+final class LoginRequest extends FormRequest
 {
     public function authorize(): bool
     {

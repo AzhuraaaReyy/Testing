@@ -1,12 +1,13 @@
 <?php
 
 use App\Actions\Auth\AuthenticateUserAction;
+use App\Enums\PintuLogin;
 use App\Models\Siswa;
 use App\Models\User;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Testing\TestResponse;
 
-beforeEach(fn () => RateLimiter::clear('login:siswa@sekolah.test|127.0.0.1'));
+beforeEach(fn () => RateLimiter::clear(AuthenticateUserAction::throttleKey('siswa@sekolah.test', '127.0.0.1', PintuLogin::Portal)));
 
 function loginPortal(string $email, string $password = 'password'): TestResponse
 {

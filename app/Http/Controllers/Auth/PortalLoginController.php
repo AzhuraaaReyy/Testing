@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Auth;
 
 use App\Actions\Auth\AuthenticateUserAction;
 use App\Actions\Auth\LogoutUserAction;
-use App\Enums\Role;
+use App\Enums\PintuLogin;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\PortalLoginRequest;
+use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -17,9 +17,9 @@ final class PortalLoginController extends Controller
         return view('pages.auth.login');
     }
 
-    public function store(PortalLoginRequest $request, AuthenticateUserAction $authenticate): RedirectResponse
+    public function store(LoginRequest $request, AuthenticateUserAction $authenticate): RedirectResponse
     {
-        $authenticate->handle($request->email(), $request->password(), (string) $request->ip(), Role::Guru, Role::Siswa);
+        $authenticate->handle($request->email(), $request->password(), (string) $request->ip(), PintuLogin::Portal);
 
         $request->session()->regenerate();
 

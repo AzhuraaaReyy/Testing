@@ -14,15 +14,6 @@ enum Role: string
     case Guru = 'guru';
     case Siswa = 'siswa';
 
-    public function label(): string
-    {
-        return match ($this) {
-            self::Admin => 'Admin',
-            self::Guru => 'Guru',
-            self::Siswa => 'Siswa',
-        };
-    }
-
     /**
      * Nama grup menu laporan, dari sudut pandang pengguna.
      */
@@ -43,5 +34,24 @@ enum Role: string
     public function loginRoute(): string
     {
         return $this === self::Admin ? 'filament.admin.auth.login' : 'login';
+    }
+
+    /**
+     * Awalan path halaman yang boleh dibuka peran ini (tujuan setelah login).
+     */
+    public function wilayahUrl(): string
+    {
+        return $this === self::Admin ? 'admin' : 'portal';
+    }
+
+    /**
+     * Penjelasan saat akun yang sedang login membuka halaman login pintu lain. Satu browser
+     * memegang satu akun (session sama), jadi pengguna perlu logout dulu.
+     */
+    public function pesanSudahLogin(): string
+    {
+        return $this === self::Admin
+            ? 'Anda sedang login sebagai Admin. Logout terlebih dahulu untuk masuk sebagai Guru atau Siswa.'
+            : 'Anda sedang login di portal Guru/Siswa. Logout terlebih dahulu untuk masuk sebagai Admin.';
     }
 }

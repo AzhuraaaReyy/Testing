@@ -1,5 +1,5 @@
 import { query } from '../lib/dom';
-import { PORTAL_LOGIN_MESSAGES, type PortalLoginPayload } from '../types/contracts';
+import { LOGIN_MESSAGES, type LoginPayload } from '../types/contracts';
 
 /**
  * Form login portal (PRD 4.3):
@@ -8,18 +8,18 @@ import { PORTAL_LOGIN_MESSAGES, type PortalLoginPayload } from '../types/contrac
  * - password tersembunyi default dengan tombol tampil/sembunyikan.
  */
 
-type FieldName = keyof PortalLoginPayload;
+type FieldName = keyof LoginPayload;
 
 /** Pola sederhana untuk umpan balik cepat; keputusan akhir tetap di server (rule `email`). */
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function validate(payload: PortalLoginPayload): Partial<Record<FieldName, string>> {
+function validate(payload: LoginPayload): Partial<Record<FieldName, string>> {
     const errors: Partial<Record<FieldName, string>> = {};
 
-    if (payload.email.trim() === '') errors.email = PORTAL_LOGIN_MESSAGES['email.required'];
-    else if (!EMAIL_PATTERN.test(payload.email.trim())) errors.email = PORTAL_LOGIN_MESSAGES['email.email'];
+    if (payload.email.trim() === '') errors.email = LOGIN_MESSAGES['email.required'];
+    else if (!EMAIL_PATTERN.test(payload.email.trim())) errors.email = LOGIN_MESSAGES['email.email'];
 
-    if (payload.password === '') errors.password = PORTAL_LOGIN_MESSAGES['password.required'];
+    if (payload.password === '') errors.password = LOGIN_MESSAGES['password.required'];
 
     return errors;
 }
@@ -80,7 +80,7 @@ function bind(form: HTMLFormElement): void {
             return;
         }
 
-        const payload: PortalLoginPayload = { email: email.value, password: password.value };
+        const payload: LoginPayload = { email: email.value, password: password.value };
         const errors = validate(payload);
 
         setFieldError(form, 'email', errors.email);

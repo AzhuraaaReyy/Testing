@@ -1,5 +1,5 @@
 {{--
-    Login portal Guru/Siswa (PRD 4.2–4.5, v1.3). Payload = App\Http\Requests\Auth\PortalLoginRequest.
+    Login portal Guru/Siswa (PRD 4.2–4.5, v1.3). Payload = App\Http\Requests\Auth\LoginRequest.
     Tanpa "Ingat saya" dan tanpa pengisian otomatis kredensial (PRD 4.2 poin 5–7).
 --}}
 <x-layouts.guest title="Login">

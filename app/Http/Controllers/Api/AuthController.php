@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Actions\Auth\AuthenticateUserAction;
 use App\Actions\Auth\LogoutUserAction;
-use App\Enums\Role;
+use App\Enums\PintuLogin;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\PortalLoginRequest;
+use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Container\Attributes\CurrentUser;
@@ -18,13 +18,13 @@ use Illuminate\Http\JsonResponse;
  */
 final class AuthController extends Controller
 {
-    public function login(PortalLoginRequest $request, AuthenticateUserAction $authenticate): JsonResponse
+    public function login(LoginRequest $request, AuthenticateUserAction $authenticate): JsonResponse
     {
         $user = $authenticate->verifikasi(
             $request->email(),
             $request->password(),
             (string) $request->ip(),
-            ...Role::cases(),
+            PintuLogin::Api,
         );
 
         return response()->json([

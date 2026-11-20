@@ -10,20 +10,24 @@
 export const JENIS_LAPORAN = ['siswa-per-kelas', 'guru-per-kelas', 'siswa-kelas-guru'] as const;
 export type JenisLaporan = (typeof JENIS_LAPORAN)[number];
 
+/** Cermin App\Enums\PintuLogin (penghitung percobaan login gagal dipisah per pintu). */
+export const PINTU_LOGIN = ['portal', 'admin', 'api'] as const;
+export type PintuLogin = (typeof PINTU_LOGIN)[number];
+
 /** Cermin App\Enums\Role. */
 export const ROLE = ['admin', 'guru', 'siswa'] as const;
 export type Role = (typeof ROLE)[number];
 
-/** Cermin rules() App\Http\Requests\Auth\PortalLoginRequest (POST /login). */
-export interface PortalLoginPayload {
+/** Cermin rules() App\Http\Requests\Auth\LoginRequest (POST /login). */
+export interface LoginPayload {
     /** required, format email. */
     email: string;
     /** required. */
     password: string;
 }
 
-/** Cermin messages() App\Http\Requests\Auth\PortalLoginRequest — dipakai validasi sisi klien. */
-export const PORTAL_LOGIN_MESSAGES = {
+/** Cermin messages() App\Http\Requests\Auth\LoginRequest — dipakai validasi sisi klien. */
+export const LOGIN_MESSAGES = {
     'email.required': 'Email wajib diisi.',
     'email.email': 'Format email tidak valid.',
     'password.required': 'Password wajib diisi.',

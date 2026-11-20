@@ -89,6 +89,8 @@ class AdminPanelProvider extends PanelProvider
             ->navigationGroups(['Data Master', Role::Admin->labelGrupLaporan()])
             // Dropdown akun: Nama, Email, Logout dengan konfirmasi (PRD 4.7, 17.1).
             ->renderHook(PanelsRenderHook::USER_MENU_PROFILE_AFTER, fn (): View => view('filament.user-menu-email'))
+            // "Guru atau Siswa? Masuk melalui portal" di bawah form login Admin.
+            ->renderHook(PanelsRenderHook::AUTH_LOGIN_FORM_AFTER, fn (): View => view('filament.login-portal-hint'))
             // Session berakhir (419/401) & error state tabel "Coba Lagi" (PRD 4.6, 16.3).
             ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.scripts'))
             ->userMenuItems([

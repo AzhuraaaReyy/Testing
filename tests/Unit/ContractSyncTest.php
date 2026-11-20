@@ -7,10 +7,11 @@ use App\DTOs\Navigation\NavItemData;
 use App\Enums\Icon;
 use App\Enums\JenisKelamin;
 use App\Enums\JenisLaporan;
+use App\Enums\PintuLogin;
 use App\Enums\Role;
 use App\Enums\Tingkat;
 use App\Http\Requests\Admin\BuatAdminRequest;
-use App\Http\Requests\Auth\PortalLoginRequest;
+use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\DataMaster\AkunPortalRequest;
 use App\Http\Requests\DataMaster\DaftarDataMasterRequest;
 use App\Http\Requests\DataMaster\GuruRequest;
@@ -122,6 +123,7 @@ it('menyamakan nilai enum', function (string $tsName, string $enum) {
     ['ROLE', Role::class],
     ['JENIS_KELAMIN', JenisKelamin::class],
     ['ICON', Icon::class],
+    ['PINTU_LOGIN', PintuLogin::class],
 ]);
 
 it('mencerminkan setiap enum dan DTO aplikasi', function () {
@@ -148,7 +150,7 @@ it('menyamakan field payload dengan rules FormRequest', function (string $tsName
     expect(array_keys(tsInterface($tsName)))->toBe($fields);
 })->with([
     ['LaporanQuery', LaporanRequest::class],
-    ['PortalLoginPayload', PortalLoginRequest::class],
+    ['LoginPayload', LoginRequest::class],
     ['BuatAdminPayload', BuatAdminRequest::class],
     ['KelasPayload', KelasRequest::class],
     ['SiswaPayload', SiswaRequest::class],
@@ -172,5 +174,5 @@ it('mencerminkan setiap FormRequest aplikasi', function () {
 });
 
 it('menyamakan pesan validasi login sisi klien dengan server', function () {
-    expect(tsConstObject('PORTAL_LOGIN_MESSAGES'))->toBe((new PortalLoginRequest)->messages());
+    expect(tsConstObject('LOGIN_MESSAGES'))->toBe((new LoginRequest)->messages());
 });

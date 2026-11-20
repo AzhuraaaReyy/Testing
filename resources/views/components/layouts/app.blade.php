@@ -32,6 +32,11 @@
 
         <main id="konten" tabindex="-1" class="min-w-0 flex-1 px-4 py-6 focus:outline-none sm:px-6 lg:px-8 lg:py-8">
             <div class="mx-auto flex max-w-7xl flex-col gap-6">
+                {{-- Pesan informasi satu kali, mis. "Anda sedang login di portal…" (App\Filament\Pages\Auth\Login). --}}
+                @if (session(\App\Filament\Pages\Auth\Login::FLASH_INFO))
+                    <x-molecules.alert variant="info">{{ session(\App\Filament\Pages\Auth\Login::FLASH_INFO) }}</x-molecules.alert>
+                @endif
+
                 {{ $slot }}
             </div>
         </main>
