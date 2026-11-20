@@ -10,6 +10,7 @@ use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Facades\Filament;
+use Filament\FontProviders\LocalFontProvider;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -30,6 +31,7 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Livewire\Component;
@@ -74,7 +76,10 @@ class AdminPanelProvider extends PanelProvider
             // Logo/placeholder + nama sistem/sekolah, komponen yang sama dengan Navbar portal (PRD 17.1).
             ->brandLogo(fn (): Htmlable => new HtmlString(Blade::render('<x-molecules.brand :link="false" />')))
             ->brandLogoHeight('2.25rem')
-            ->font('Roboto')
+            // Roboto di-self-host oleh Vite (vite.config.js → fonts), sama dengan portal: tidak ada
+            // permintaan ke fonts.bunny.net (privasi, CSP, dan alert ZAP "SRI Attribute Missing").
+            ->font('Roboto', provider: LocalFontProvider::class)
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): Htmlable => Vite::fonts())
             ->colors([
                 // Senada dengan token --color-primary di tokens.css.
                 'primary' => Color::Teal,

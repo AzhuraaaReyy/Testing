@@ -1,3 +1,9 @@
+# File statis (build/, robots.txt, favicon) dilayani langsung oleh Apache tanpa melewati Laravel,
+# sehingga header dari middleware SecurityHeaders tidak ikut. Cegah MIME sniffing di sini juga.
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes

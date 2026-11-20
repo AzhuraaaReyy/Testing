@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\SecurityHeaders;
 use App\Models\User;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Testing\TestResponse;
 
 /*
@@ -13,6 +14,8 @@ function assertHeaderKeamanan(TestResponse $response): TestResponse
     foreach (SecurityHeaders::HEADERS as $nama => $nilai) {
         $response->assertHeader($nama, $nilai);
     }
+
+    $response->assertHeader('Content-Security-Policy', SecurityHeaders::csp());
 
     return $response;
 }
@@ -46,4 +49,40 @@ it('mengirim HSTS di produksi lewat HTTPS', function () {
     $this->app['env'] = 'production';
 
     $this->get('https://localhost/login')->assertHeader('Strict-Transport-Security', SecurityHeaders::HSTS);
+});
+
+it('mendefinisikan seluruh directive CSP yang tidak punya fallback (ZAP 10055)', function () {
+    $csp = (string) $this->get('/login')->headers->get('Content-Security-Policy');
+
+    expect($csp)
+        ->toContain("default-src 'self'")
+        ->toContain("object-src 'none'")
+        ->toContain("base-uri 'self'")
+        ->toContain("form-action 'self'")
+        ->toContain("frame-ancestors 'none'")
+        ->not->toContain('*');
+});
+
+it('mengizinkan dev server Vite di CSP hanya saat berjalan', function () {
+    $hot = storage_path('framework/testing/hot-uji-csp');
+    Vite::useHotFile($hot);
+
+    expect(SecurityHeaders::csp())->not->toContain('5173');
+
+    file_put_contents($hot, 'http://[::1]:5173');
+
+    try {
+        expect(SecurityHeaders::csp())
+            ->toContain("script-src 'self' 'unsafe-inline' 'unsafe-eval' http://[::1]:5173")
+            ->toContain("connect-src 'self' http://[::1]:5173 ws://[::1]:5173");
+    } finally {
+        unlink($hot);
+    }
+});
+
+it('memuat font panel Admin dari server sendiri, bukan pihak ketiga', function () {
+    $this->get('/admin/login')
+        ->assertOk()
+        ->assertDontSee('fonts.bunny.net')
+        ->assertSee('@font-face', escape: false);
 });

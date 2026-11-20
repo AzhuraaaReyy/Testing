@@ -420,8 +420,10 @@ Composer, npm, dan GitHub Actions setiap minggu.
 
 - Pembatasan login per email (3 kali / 15 menit) dan per IP (20 kali / 15 menit) di semua pintu.
 - Waktu respons login gagal diseragamkan, sehingga email terdaftar tidak dapat ditebak.
-- Header keamanan di semua respons: `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`,
-  `Permissions-Policy`, serta HSTS di production.
+- Header keamanan di semua respons: `Content-Security-Policy`, `X-Frame-Options`,
+  `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, serta HSTS di production.
+  CSP sengaja masih mengizinkan script/style inline dan `unsafe-eval` karena dibutuhkan
+  Livewire/Alpine (lihat `app/Http/Middleware/SecurityHeaders.php`).
 - Validasi Host header dan penyaringan URL tujuan setelah login (mencegah open redirect).
 - Aturan password: minimal 8 karakter, memuat huruf dan angka; di production dicek terhadap daftar
   password bocor (Have I Been Pwned, k-anonymity).
@@ -449,6 +451,12 @@ Wajib diperhatikan:
 - `.env`: `APP_ENV=production`, `APP_DEBUG=false`, dan `APP_URL` berisi domain asli (Host lain ditolak).
 - Gunakan HTTPS. Cookie session otomatis `Secure` di production.
 - Di balik reverse proxy/load balancer: atur `trustProxies` agar IP pengguna dan HTTPS terbaca benar.
+- File statis (`/build`, `robots.txt`) dilayani web server tanpa melewati Laravel. Apache sudah
+  diatur lewat `public/.htaccess`; untuk Nginx tambahkan di blok `server`:
+
+  ```nginx
+  add_header X-Content-Type-Options "nosniff" always;
+  ```
 - Pasang cron scheduler:
 
   ```cron
