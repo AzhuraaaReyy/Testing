@@ -1,8 +1,9 @@
 *.log
 .DS_Store
 .env
-.env.backup
-.env.production
+# Semua variasi file environment berisi rahasia; hanya contoh tanpa nilai yang di-commit.
+.env.*
+!.env.example
 .phpactor.json
 .phpunit.result.cache
 /.codex
@@ -36,3 +37,33 @@ Homestead.yaml
 Thumbs.db
 .mcp.json
 boost.json
+
+# --- Pengaman tambahan: file rahasia/lokal yang tidak boleh ter-commit ---
+# Kunci & sertifikat
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+# Dump/backup database & data lokal
+*.sql
+*.sql.gz
+*.dump
+*.sqlite
+*.sqlite3
+*.bak
+/backup*/
+# Laporan coverage test
+/coverage
+clover.xml
+coverage.xml
+# Environment Postman/alat uji (bisa berisi token)
+*.postman_environment.json
+# Konfigurasi lokal editor/agen AI & index kode
+/.claude/
+/.codebase-memory/
+/.junie/
+/.fleet
+/.history
+# Berkas sistem Windows
+desktop.ini
