@@ -8,7 +8,10 @@
 /.codex
 /.cursor/
 AGENTS.md
-docs
+# Dokumen kerja (mis. PRD) tetap lokal; spesifikasi API ikut di-commit karena dipakai
+# test (tests/Feature/Api/OpenApiTest.php), CI, dan alat uji seperti Postman/ZAP.
+/docs/*
+!/docs/api/
 CLAUDE.md
 /.idea
 /.nova
