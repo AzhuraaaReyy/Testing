@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Actions\Auth\LogoutUserAction;
 use App\Enums\Role;
+use App\Filament\AvatarProviders\InisialAvatarProvider;
 use App\Filament\Pages\Auth\Login;
 use App\Http\Middleware\PreventSensitiveCaching;
 use Filament\Actions\Action;
@@ -80,6 +81,8 @@ class AdminPanelProvider extends PanelProvider
             // permintaan ke fonts.bunny.net (privasi, CSP, dan alert ZAP "SRI Attribute Missing").
             ->font('Roboto', provider: LocalFontProvider::class)
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): Htmlable => Vite::fonts())
+            // Avatar inisial dibuat lokal (SVG), bukan dari ui-avatars.com (SEC2-08).
+            ->defaultAvatarProvider(InisialAvatarProvider::class)
             ->colors([
                 // Senada dengan token --color-primary di tokens.css.
                 'primary' => Color::Teal,

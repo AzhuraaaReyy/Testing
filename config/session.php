@@ -47,7 +47,9 @@ return [
     |
     */
 
-    'encrypt' => env('SESSION_ENCRYPT', false),
+    // SEC2-09: di production isi session dienkripsi secara bawaan (tabel sessions tidak terbaca
+    // walau database bocor). Bisa ditimpa lewat .env.
+    'encrypt' => env('SESSION_ENCRYPT', env('APP_ENV') === 'production'),
 
     /*
     |--------------------------------------------------------------------------

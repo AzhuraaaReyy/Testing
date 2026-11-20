@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Actions\Auth\LogoutUserAction;
 use App\Enums\Role;
 use App\Models\User;
+use App\Support\LogKeamanan;
 use Closure;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
@@ -36,6 +37,8 @@ final class EnsureRole
         $api = $request->is('api/*');
 
         if (! $user->isActive()) {
+            LogKeamanan::catat('akun.nonaktif.dikeluarkan', ['user_id' => $user->id, 'peran' => $user->role->value, 'ip' => $request->ip()], 'info');
+
             if ($api) {
                 $token = $user->currentAccessToken();
 
@@ -52,6 +55,13 @@ final class EnsureRole
         }
 
         if (! in_array($user->role->value, $roles, true)) {
+            LogKeamanan::catat('akses.ditolak', [
+                'user_id' => $user->id,
+                'peran' => $user->role->value,
+                'path' => $request->path(),
+                'ip' => $request->ip(),
+            ]);
+
             abort_if($api, 403);
 
             return redirect()->route($user->role->homeRoute());

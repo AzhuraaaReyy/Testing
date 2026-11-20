@@ -9,7 +9,8 @@
     <title>{{ $title }} · {{ config('sekolah.nama_sistem') }}</title>
 
     {{-- Pulihkan state Sidebar sebelum render pertama agar tidak berkedip. Key = SIDEBAR_STORAGE_KEY di components/sidebar.ts. --}}
-    <script>
+    {{-- nonce: CSP portal hanya mengizinkan script inline bernonce (App\Http\Middleware\SecurityHeaders). --}}
+    <script nonce="{{ \Illuminate\Support\Facades\Vite::cspNonce() }}">
         try {
             if (localStorage.getItem('sidebar') === 'collapsed') {
                 document.documentElement.dataset.sidebar = 'collapsed';

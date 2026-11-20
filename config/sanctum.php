@@ -66,7 +66,9 @@ return [
     |
     */
 
-    'token_prefix' => env('SANCTUM_TOKEN_PREFIX', ''),
+    // Prefix token API (SEC2-06): token yang bocor (mis. ter-commit ke GitHub) dapat dikenali
+    // pemindai rahasia. Token lama tanpa prefix tetap berlaku sampai kedaluwarsa.
+    'token_prefix' => env('SANCTUM_TOKEN_PREFIX', 'sekolah_'),
 
     /*
     |--------------------------------------------------------------------------

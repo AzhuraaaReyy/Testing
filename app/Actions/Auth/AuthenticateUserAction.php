@@ -4,6 +4,7 @@ namespace App\Actions\Auth;
 
 use App\Enums\PintuLogin;
 use App\Models\User;
+use App\Support\LogKeamanan;
 use App\Support\SesiLogin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -70,8 +71,11 @@ final class AuthenticateUserAction
         $key = self::throttleKey($email, $ip, $pintu);
         $ipKey = self::throttleKeyIp($ip);
 
-        $this->tolakJikaTerkunci($ipKey, self::MAX_ATTEMPTS_PER_IP);
-        $this->tolakJikaTerkunci($key, self::MAX_ATTEMPTS);
+        // Konteks log keamanan (SEC2-04); email disamarkan, password tidak pernah dicatat.
+        $konteks = ['pintu' => $pintu->value, 'email' => LogKeamanan::samarkanEmail($email), 'ip' => $ip];
+
+        $this->tolakJikaTerkunci($ipKey, self::MAX_ATTEMPTS_PER_IP, [...$konteks, 'batas' => 'ip']);
+        $this->tolakJikaTerkunci($key, self::MAX_ATTEMPTS, [...$konteks, 'batas' => 'email']);
 
         // Kegagalan selalu memakan waktu minimum yang sama, terdaftar atau tidak (SEC-02).
         $user = $this->timebox->dontReturnEarly()->call(function (Timebox $timebox) use ($email, $password, $pintu): ?User {
@@ -89,6 +93,7 @@ final class AuthenticateUserAction
         if (! $user) {
             RateLimiter::hit($key, self::DECAY_SECONDS);
             RateLimiter::hit($ipKey, self::DECAY_SECONDS);
+            LogKeamanan::catat('login.gagal', $konteks);
 
             throw ValidationException::withMessages(['email' => self::GAGAL]);
         }
@@ -96,6 +101,7 @@ final class AuthenticateUserAction
         // Hanya penghitung per email yang direset. Penghitung per IP sengaja tidak direset agar
         // penyerang tidak bisa "mencuci" kegagalannya dengan sesekali login memakai akunnya sendiri.
         RateLimiter::clear($key);
+        LogKeamanan::catat('login.berhasil', [...$konteks, 'user_id' => $user->id], 'info');
 
         return $user;
     }
@@ -128,14 +134,19 @@ final class AuthenticateUserAction
         return "login-ip:{$ip}";
     }
 
-    /** @throws ValidationException */
-    private function tolakJikaTerkunci(string $key, int $maks): void
+    /**
+     * @param  array<string, string>  $konteks  Konteks log keamanan.
+     *
+     * @throws ValidationException
+     */
+    private function tolakJikaTerkunci(string $key, int $maks, array $konteks): void
     {
         if (! RateLimiter::tooManyAttempts($key, $maks)) {
             return;
         }
 
         $menit = (int) ceil(RateLimiter::availableIn($key) / 60);
+        LogKeamanan::catat('login.terkunci', [...$konteks, 'sisa_menit' => $menit]);
 
         throw ValidationException::withMessages([
             'email' => "Terlalu banyak percobaan login. Silakan coba lagi dalam {$menit} menit.",

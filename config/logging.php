@@ -65,6 +65,16 @@ return [
             'replace_placeholders' => true,
         ],
 
+        // Kejadian keamanan (SEC2-04): login gagal/terkunci/berhasil, akses ditolak, akun dicabut.
+        // Terpisah dari laravel.log agar mudah dipantau; email disamarkan, password tidak pernah dicatat.
+        'security' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/security.log'),
+            'level' => 'info',
+            'max_files' => (int) env('LOG_SECURITY_DAYS', 90),
+            'replace_placeholders' => true,
+        ],
+
         'daily' => [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),

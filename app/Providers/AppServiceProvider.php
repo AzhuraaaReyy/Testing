@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Http\Middleware\PreventRequestForgeryTanpaCookie;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\RateLimiter;
@@ -19,7 +21,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // CSRF tanpa cookie XSRF-TOKEN yang dapat dibaca JavaScript (SEC2-03).
+        $this->app->bind(PreventRequestForgery::class, PreventRequestForgeryTanpaCookie::class);
     }
 
     /**

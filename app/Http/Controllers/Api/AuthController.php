@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Actions\Auth\AuthenticateUserAction;
+use App\Actions\Auth\BuatTokenApiAction;
 use App\Actions\Auth\LogoutUserAction;
 use App\Enums\PintuLogin;
 use App\Http\Controllers\Controller;
@@ -18,7 +19,7 @@ use Illuminate\Http\JsonResponse;
  */
 final class AuthController extends Controller
 {
-    public function login(LoginRequest $request, AuthenticateUserAction $authenticate): JsonResponse
+    public function login(LoginRequest $request, AuthenticateUserAction $authenticate, BuatTokenApiAction $buatToken): JsonResponse
     {
         $user = $authenticate->verifikasi(
             $request->email(),
@@ -28,7 +29,7 @@ final class AuthController extends Controller
         );
 
         return response()->json([
-            'token' => $user->createToken('api')->plainTextToken,
+            'token' => $buatToken->handle($user),
             'token_type' => 'Bearer',
             'user' => UserResource::make($user),
         ]);

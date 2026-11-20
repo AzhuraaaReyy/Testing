@@ -422,12 +422,18 @@ Composer, npm, dan GitHub Actions setiap minggu.
 - Waktu respons login gagal diseragamkan, sehingga email terdaftar tidak dapat ditebak.
 - Header keamanan di semua respons: `Content-Security-Policy`, `X-Frame-Options`,
   `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, serta HSTS di production.
-  CSP sengaja masih mengizinkan script/style inline dan `unsafe-eval` karena dibutuhkan
+  CSP dibedakan per area: portal ketat berbasis nonce, API tanpa sumber daya apa pun, dan panel
+  Admin sengaja masih mengizinkan script/style inline serta `unsafe-eval` karena dibutuhkan
   Livewire/Alpine (lihat `app/Http/Middleware/SecurityHeaders.php`).
+- CORS API hanya untuk origin `APP_URL` (tambahan via `CORS_ALLOWED_ORIGINS`); token API berprefix
+  `sekolah_` dan maksimal 5 token aktif per akun.
 - Validasi Host header dan penyaringan URL tujuan setelah login (mencegah open redirect).
 - Aturan password: minimal 8 karakter, memuat huruf dan angka; di production dicek terhadap daftar
   password bocor (Have I Been Pwned, k-anonymity).
 - Seeder data contoh ditolak di production; token API kedaluwarsa dihapus otomatis setiap hari.
+- Session portal dan token API lama otomatis dicabut saat Admin mengganti password akun portal.
+- Kejadian keamanan (login gagal/terkunci/berhasil, akses lintas peran, perubahan akun) dicatat di
+  `storage/logs/security-YYYY-MM-DD.log`, dengan email disamarkan dan tanpa password.
 - Error tidak membocorkan detail internal saat `APP_DEBUG=false`.
 
 Temukan celah keamanan? Mohon laporkan secara pribadi kepada pemilik repository, jangan melalui

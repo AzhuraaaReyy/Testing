@@ -27,8 +27,10 @@ Route::post('/logout', [PortalLoginController::class, 'destroy'])->middleware('a
 |
 | Portal Guru/Siswa: read-only, tanpa CRUD (PRD v1.3).
 | {jenis} di-bind otomatis ke enum App\Enums\JenisLaporan; nilai lain menghasilkan 404.
+| auth.session: session lain milik akun ini berakhir begitu password-nya diganti Admin (SEC2-01),
+| sama seperti AuthenticateSession di panel Admin.
 */
-Route::middleware(['auth', EnsureRole::for(Role::Guru, Role::Siswa), PreventSensitiveCaching::class])
+Route::middleware(['auth', 'auth.session', EnsureRole::for(Role::Guru, Role::Siswa), PreventSensitiveCaching::class])
     ->prefix('portal')
     ->name('portal.')
     ->group(function (): void {

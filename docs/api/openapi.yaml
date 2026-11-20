@@ -37,7 +37,9 @@ paths:
     post:
       tags: [Autentikasi]
       summary: Login dan dapatkan Bearer token
-      description: Pesan gagal bersifat umum (PRD 4.4). Akun dengan profil di Trash ditolak (PRD 22.2).
+      description: >-
+        Pesan gagal bersifat umum (PRD 4.4). Akun dengan profil di Trash ditolak (PRD 22.2).
+        Maksimal 5 token aktif per akun: login berikutnya mencabut token tertua.
       operationId: login
       security: []
       requestBody:
@@ -624,7 +626,7 @@ components:
       type: object
       required: [token, token_type, user]
       properties:
-        token: { type: string, example: '1|abc123...' }
+        token: { type: string, example: '1|sekolah_abc123...', description: 'Format {id}|sekolah_{acak}; ditampilkan sekali.' }
         token_type: { type: string, enum: [Bearer] }
         user: { $ref: '#/components/schemas/User' }
     User:

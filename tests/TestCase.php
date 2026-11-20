@@ -5,6 +5,7 @@ namespace Tests;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Sleep;
+use Monolog\Handler\NullHandler;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -17,5 +18,9 @@ abstract class TestCase extends BaseTestCase
 
         // Daftar host tepercaya (SEC-06) disimpan statis oleh Symfony; jangan terbawa antar-test.
         Request::setTrustedHosts([]);
+
+        // Log keamanan (SEC2-04) tidak ditulis ke storage/logs saat test; LogKeamananTest
+        // mengarahkannya ke file sementara untuk memeriksa isinya.
+        config(['logging.channels.security' => ['driver' => 'monolog', 'handler' => NullHandler::class]]);
     }
 }
