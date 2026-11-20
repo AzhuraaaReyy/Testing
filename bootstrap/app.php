@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\PartialResponse;
+use App\Support\SesiLogin;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -22,6 +24,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectUsersTo(fn (Request $request) => route($request->user()->role->homeRoute()));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // Tamu ditolak di halaman terlindungi (portal maupun panel Admin): bila sebelumnya pernah
+        // login, beri tahu bahwa session berakhir (PRD 4.6 poin 3). null = redirect bawaan tetap berjalan.
+        $exceptions->render(function (AuthenticationException $exception, Request $request) {
+            SesiLogin::umumkanJikaBerakhir($request);
+
+            return null;
+        });
+
         // Permintaan parsial (fetch fragmen) menerima error dalam format JSON standar Laravel
         // agar frontend dapat menanganinya seragam: 422 {message, errors}, 500 {message}.
         $exceptions->shouldRenderJsonWhen(

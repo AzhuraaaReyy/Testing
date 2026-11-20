@@ -13,6 +13,10 @@
             <x-molecules.alert class="mt-5">{{ session('status') }}</x-molecules.alert>
         @endif
 
+        @if (session(\App\Support\SesiLogin::FLASH))
+            <x-molecules.alert variant="info" class="mt-5">{{ session(\App\Support\SesiLogin::FLASH) }}</x-molecules.alert>
+        @endif
+
         <form method="POST" action="{{ route('login.store') }}" novalidate data-login-form class="mt-6 flex flex-col gap-5">
             @csrf
 

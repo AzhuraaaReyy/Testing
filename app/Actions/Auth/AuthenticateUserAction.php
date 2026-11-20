@@ -4,6 +4,7 @@ namespace App\Actions\Auth;
 
 use App\Enums\Role;
 use App\Models\User;
+use App\Support\SesiLogin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
@@ -50,6 +51,7 @@ final class AuthenticateUserAction
 
         RateLimiter::clear($key);
         Auth::login($user);
+        SesiLogin::tandai();
 
         return $user;
     }

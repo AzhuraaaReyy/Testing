@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\Icon;
 use Filament\Resources\Resource;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -15,6 +17,14 @@ use UnitEnum;
 abstract class DataMasterResource extends Resource
 {
     protected static string|UnitEnum|null $navigationGroup = 'Data Master';
+
+    /** Ikon menu dari set ikon aplikasi (sama dengan kartu ringkasan Dashboard). */
+    protected static Icon $ikon;
+
+    public static function getNavigationIcon(): Heroicon
+    {
+        return static::$ikon->heroicon();
+    }
 
     /**
      * Bahasa Indonesia tidak memakai bentuk jamak "-s": Siswa, Kelas, Guru.

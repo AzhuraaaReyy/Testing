@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Guru;
 
+use App\Enums\Icon;
 use App\Filament\Resources\DataMasterResource;
 use App\Filament\Resources\Guru\Pages\CreateGuru;
 use App\Filament\Resources\Guru\Pages\EditGuru;
@@ -11,9 +12,7 @@ use App\Filament\Resources\Guru\Schemas\GuruForm;
 use App\Filament\Resources\Guru\Schemas\GuruInfolist;
 use App\Filament\Resources\Guru\Tables\GuruTable;
 use App\Models\Guru;
-use BackedEnum;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
 /**
@@ -29,7 +28,7 @@ class GuruResource extends DataMasterResource
 
     protected static ?string $recordTitleAttribute = 'nama';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
+    protected static Icon $ikon = Icon::Presentation;
 
     protected static ?int $navigationSort = 3;
 

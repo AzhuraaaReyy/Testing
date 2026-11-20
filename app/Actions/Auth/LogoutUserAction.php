@@ -2,6 +2,7 @@
 
 namespace App\Actions\Auth;
 
+use App\Support\SesiLogin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
@@ -19,5 +20,8 @@ final class LogoutUserAction
 
         Session::invalidate();
         Session::regenerateToken();
+
+        // Logout disengaja: halaman login berikutnya tidak boleh mengatakan "session berakhir".
+        SesiLogin::lupakan();
     }
 }

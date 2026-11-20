@@ -8,7 +8,6 @@ use App\Enums\JenisLaporan;
 use App\Enums\Role;
 use Filament\Navigation\NavigationItem;
 use Filament\Pages\Page;
-use Filament\Support\Icons\Heroicon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Attributes\Locked;
 use Livewire\WithPagination;
@@ -46,11 +45,7 @@ class Laporan extends Page
         return array_map(
             fn (JenisLaporan $jenis): NavigationItem => NavigationItem::make($jenis->labelMenu())
                 ->group(Role::Admin->labelGrupLaporan())
-                ->icon(match ($jenis) {
-                    JenisLaporan::SiswaPerKelas => Heroicon::OutlinedUserGroup,
-                    JenisLaporan::GuruPerKelas => Heroicon::OutlinedBriefcase,
-                    JenisLaporan::Gabungan => Heroicon::OutlinedTableCells,
-                })
+                ->icon($jenis->icon()->heroicon())
                 ->url(fn (): string => static::getUrl(['jenis' => $jenis]))
                 ->activeWhen(fn (): bool => original_request()->routeIs(static::getRouteName())
                     && static::jenisDariRute() === $jenis),

@@ -15,3 +15,11 @@
 .fi-ta-content-ctn {
     @apply scrollbar-none;
 }
+
+/*
+ * Error state tabel (PRD 16.3), diset resources/js/components/livewire-table-error.ts:
+ * data lama & pagination disembunyikan agar tidak dikira valid; judul tabel tetap terlihat.
+ */
+[data-table-state='error'] :is([data-table-area], .fi-ta-content-ctn, .fi-pagination) {
+    display: none;
+}

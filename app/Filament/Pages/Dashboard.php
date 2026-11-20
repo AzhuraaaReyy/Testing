@@ -2,9 +2,11 @@
 
 namespace App\Filament\Pages;
 
+use App\Enums\Icon;
 use App\Filament\Widgets\DistribusiKelasWidget;
 use App\Filament\Widgets\RingkasanSekolahWidget;
 use Filament\Pages\Dashboard as BaseDashboard;
+use Filament\Support\Icons\Heroicon;
 
 /**
  * Dashboard Admin (PRD 11): kartu ringkasan, lalu distribusi Siswa, lalu distribusi Guru.
@@ -12,6 +14,11 @@ use Filament\Pages\Dashboard as BaseDashboard;
 class Dashboard extends BaseDashboard
 {
     protected static ?string $title = 'Dashboard';
+
+    public static function getNavigationIcon(): Heroicon
+    {
+        return Icon::LayoutDashboard->heroicon();
+    }
 
     public function getSubheading(): string
     {

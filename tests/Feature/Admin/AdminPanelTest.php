@@ -13,6 +13,7 @@ use App\Models\Siswa;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Livewire\Topbar;
+use Illuminate\Support\Facades\Vite;
 use Livewire\Livewire;
 
 describe('Login Admin', function () {
@@ -84,6 +85,22 @@ describe('Shell panel Admin', function () {
     beforeEach(function () {
         $this->admin = User::factory()->create(['name' => 'Admin Sekolah', 'email' => 'admin@sekolah.test']);
         $this->actingAs($this->admin);
+    });
+
+    it('menyiapkan error state tabel "Coba Lagi" di halaman bertabel', function (Closure $url) {
+        $this->get($url())
+            ->assertOk()
+            ->assertSee('data-table-error-template', escape: false)
+            ->assertSeeText(['Data gagal dimuat. Silakan coba lagi.', 'Coba Lagi'])
+            ->assertSee(Vite::asset('resources/js/filament/admin.ts'), escape: false);
+    })->with([
+        'CRUD' => [fn (): string => '/admin/siswa'],
+        'Dashboard' => [fn (): string => '/admin'],
+        'Laporan' => [fn (): string => Laporan::getUrl(['jenis' => JenisLaporan::Gabungan])],
+    ]);
+
+    it('menandai area tabel laporan agar bisa diganti error state', function () {
+        $this->get(Laporan::getUrl(['jenis' => JenisLaporan::Gabungan]))->assertSee('data-table-area', escape: false);
     });
 
     it('menampilkan nama dan email Admin di menu akun', function () {

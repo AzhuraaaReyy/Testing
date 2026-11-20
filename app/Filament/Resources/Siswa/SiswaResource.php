@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Siswa;
 
+use App\Enums\Icon;
 use App\Filament\Resources\DataMasterResource;
 use App\Filament\Resources\Siswa\Pages\CreateSiswa;
 use App\Filament\Resources\Siswa\Pages\EditSiswa;
@@ -11,9 +12,7 @@ use App\Filament\Resources\Siswa\Schemas\SiswaForm;
 use App\Filament\Resources\Siswa\Schemas\SiswaInfolist;
 use App\Filament\Resources\Siswa\Tables\SiswaTable;
 use App\Models\Siswa;
-use BackedEnum;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
 /**
@@ -29,7 +28,7 @@ class SiswaResource extends DataMasterResource
 
     protected static ?string $recordTitleAttribute = 'nama';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
+    protected static Icon $ikon = Icon::Users;
 
     protected static ?int $navigationSort = 1;
 

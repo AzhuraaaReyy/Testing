@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Kelas;
 
+use App\Enums\Icon;
 use App\Filament\Resources\DataMasterResource;
 use App\Filament\Resources\Kelas\Pages\CreateKelas;
 use App\Filament\Resources\Kelas\Pages\EditKelas;
@@ -11,9 +12,7 @@ use App\Filament\Resources\Kelas\Schemas\KelasForm;
 use App\Filament\Resources\Kelas\Schemas\KelasInfolist;
 use App\Filament\Resources\Kelas\Tables\KelasTable;
 use App\Models\Kelas;
-use BackedEnum;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
 /**
@@ -29,7 +28,7 @@ class KelasResource extends DataMasterResource
 
     protected static ?string $recordTitleAttribute = 'nama_kelas';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice2;
+    protected static Icon $ikon = Icon::Building;
 
     protected static ?int $navigationSort = 2;
 

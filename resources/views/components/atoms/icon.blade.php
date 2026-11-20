@@ -1,15 +1,7 @@
 @props(['icon'])
 
-{{-- Ikon dekoratif: tersembunyi dari screen reader. Beri label pada elemen induknya. --}}
-<svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="1.75"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    aria-hidden="true"
-    focusable="false"
-    {{ $attributes->class(['size-5 shrink-0']) }}
->{!! $icon->paths() !!}</svg>
+{{--
+    Ikon dekoratif (Heroicons via App\Enums\Icon): tersembunyi dari screen reader.
+    Beri label pada elemen induknya. @var \App\Enums\Icon $icon
+--}}
+{{ svg($icon->svgName(), '', $attributes->class(['size-5 shrink-0'])->merge(['aria-hidden' => 'true', 'focusable' => 'false'])->getAttributes()) }}
