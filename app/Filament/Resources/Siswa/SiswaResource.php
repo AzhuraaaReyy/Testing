@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Siswa;
 
+use App\Actions\DataMaster\SimpanSiswaAction;
 use App\Enums\Icon;
 use App\Filament\Resources\DataMasterResource;
 use App\Filament\Resources\Siswa\Pages\CreateSiswa;
@@ -14,6 +15,7 @@ use App\Filament\Resources\Siswa\Tables\SiswaTable;
 use App\Models\Siswa;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * CRUD Siswa (PRD 5). Slug "siswa" dipakai App\Services\NavigationService.
@@ -33,6 +35,16 @@ class SiswaResource extends DataMasterResource
     protected static string $deskripsi = 'Kelola data Siswa beserta Kelasnya. Setiap Siswa aktif terdaftar di satu Kelas.';
 
     protected static ?int $navigationSort = 1;
+
+    public static function simpan(array $data, ?Model $record = null): Model
+    {
+        return app(SimpanSiswaAction::class)->handle($data, self::recordSebagai($record, Siswa::class));
+    }
+
+    public static function isiForm(Model $record, array $data): array
+    {
+        return [...$data, 'akun' => ['email' => self::recordSebagai($record, Siswa::class)?->akun?->email]];
+    }
 
     public static function form(Schema $schema): Schema
     {

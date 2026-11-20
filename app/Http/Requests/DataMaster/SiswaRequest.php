@@ -3,6 +3,7 @@
 namespace App\Http\Requests\DataMaster;
 
 use App\Enums\JenisKelamin;
+use App\Http\Requests\Concerns\RecordDariRute;
 use App\Models\Siswa;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Arr;
@@ -17,6 +18,8 @@ use Illuminate\Validation\Rules\Exists;
  */
 final class SiswaRequest extends FormRequest
 {
+    use RecordDariRute;
+
     public function authorize(): bool
     {
         return true;
@@ -27,9 +30,9 @@ final class SiswaRequest extends FormRequest
      */
     public function rules(): array
     {
-        $siswa = $this->route('record');
+        $siswa = $this->recordDariRute(Siswa::class, 'siswa');
 
-        return self::aturan($siswa instanceof Siswa ? $siswa : null);
+        return [...self::aturan($siswa), ...AkunPortalRequest::aturanBersarang($siswa?->akun, $this->string('akun.email')->toString())];
     }
 
     /**

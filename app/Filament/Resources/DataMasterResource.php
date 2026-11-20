@@ -8,6 +8,7 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use LogicException;
 use UnitEnum;
 
 /**
@@ -27,6 +28,40 @@ abstract class DataMasterResource extends Resource
     public static function getNavigationIcon(): Heroicon
     {
         return static::$ikon->heroicon();
+    }
+
+    /**
+     * Menyimpan data form lewat Action yang sama dengan API (app/Actions/DataMaster), sehingga
+     * Filament & API tidak punya dua versi logika simpan.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    abstract public static function simpan(array $data, ?Model $record = null): Model;
+
+    /**
+     * Data awal form Edit untuk field yang bukan kolom tabel (mis. akun portal, Kelas yang diajar).
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    public static function isiForm(Model $record, array $data): array
+    {
+        return $data;
+    }
+
+    /**
+     * @template T of Model
+     *
+     * @param  class-string<T>  $kelas
+     * @return T|null
+     */
+    protected static function recordSebagai(?Model $record, string $kelas): ?Model
+    {
+        if ($record !== null && ! $record instanceof $kelas) {
+            throw new LogicException(static::class.' hanya menyimpan '.$kelas.', diberikan '.$record::class.'.');
+        }
+
+        return $record;
     }
 
     /**

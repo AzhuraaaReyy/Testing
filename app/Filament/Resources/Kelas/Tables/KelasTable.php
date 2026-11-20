@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Kelas\Tables;
 
+use App\Filament\Tables\Columns\NomorColumn;
 use App\Models\Kelas;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -21,6 +22,7 @@ class KelasTable
         return $table
             ->modifyQueryUsing(self::urutkan(...))
             ->columns([
+                NomorColumn::make(),
                 TextColumn::make('nama_kelas')->label('Nama Kelas'),
                 TextColumn::make('tingkat')->label('Tingkat')->badge(),
                 TextColumn::make('jurusan')->label('Jurusan')->placeholder('-'),

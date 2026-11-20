@@ -6,13 +6,21 @@ use App\Actions\Auth\LogoutUserAction;
 use App\Enums\Role;
 use App\Models\User;
 use Closure;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
+use Laravel\Sanctum\PersonalAccessToken;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Membatasi rute untuk peran tertentu. Pemakaian: ->middleware(EnsureRole::for(Role::Guru, Role::Siswa)).
+ *
+ * Web (session):
  * - Peran tidak sesuai → diarahkan ke beranda perannya sendiri.
  * - Profil Guru/Siswa sudah di Trash → session diakhiri dan diarahkan ke Login.
+ *
+ * API (token, /api/*):
+ * - Peran tidak sesuai → 403.
+ * - Profil Guru/Siswa sudah di Trash → token dicabut, 401.
  */
 final class EnsureRole
 {
@@ -25,14 +33,27 @@ final class EnsureRole
     {
         /** @var User $user */
         $user = $request->user();
+        $api = $request->is('api/*');
 
         if (! $user->isActive()) {
+            if ($api) {
+                $token = $user->currentAccessToken();
+
+                if ($token instanceof PersonalAccessToken) {
+                    $token->delete();
+                }
+
+                throw new AuthenticationException;
+            }
+
             app(LogoutUserAction::class)->handle();
 
             return redirect()->route($user->role->loginRoute());
         }
 
         if (! in_array($user->role->value, $roles, true)) {
+            abort_if($api, 403);
+
             return redirect()->route($user->role->homeRoute());
         }
 

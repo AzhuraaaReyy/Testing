@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Login satu pintu untuk panel Admin (Filament) dan portal Guru/Siswa (Blade).
+ * Login satu pintu untuk panel Admin (Filament), portal Guru/Siswa (Blade), dan API (token).
  * - Pesan gagal bersifat umum, tidak membedakan email/password (PRD 4.4).
  * - Maksimal 3 kegagalan, lalu dibatasi 15 menit; reset setelah berhasil (PRD 4.5).
  * - Akun dengan peran di luar $peran ditolak, begitu pula akun yang profilnya
@@ -27,9 +27,27 @@ final class AuthenticateUserAction
     public const GAGAL = 'Email atau password yang Anda masukkan salah.';
 
     /**
+     * Login berbasis session (panel Admin & portal).
+     *
      * @throws ValidationException Pesan pada kunci "email".
      */
     public function handle(string $email, string $password, string $ip, Role ...$peran): User
+    {
+        $user = $this->verifikasi($email, $password, $ip, ...$peran);
+
+        Auth::login($user);
+        SesiLogin::tandai();
+
+        return $user;
+    }
+
+    /**
+     * Pengecekan kredensial tanpa membuat session; dipakai juga login API (token).
+     * Aturannya sama persis: pesan umum, batas percobaan, peran, dan profil aktif.
+     *
+     * @throws ValidationException Pesan pada kunci "email".
+     */
+    public function verifikasi(string $email, string $password, string $ip, Role ...$peran): User
     {
         $key = $this->throttleKey($email, $ip);
 
@@ -50,8 +68,6 @@ final class AuthenticateUserAction
         }
 
         RateLimiter::clear($key);
-        Auth::login($user);
-        SesiLogin::tandai();
 
         return $user;
     }

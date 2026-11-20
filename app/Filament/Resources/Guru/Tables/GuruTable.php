@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Guru\Tables;
 
 use App\Filament\Forms\AturanFormRequest;
 use App\Filament\Forms\Components\KelasAktifSelect;
+use App\Filament\Tables\Columns\NomorColumn;
 use App\Http\Requests\DataMaster\GuruRequest;
 use App\Models\Guru;
 use Filament\Actions\DeleteAction;
@@ -23,6 +24,7 @@ class GuruTable
         return $table
             ->defaultSort('nama')
             ->columns([
+                NomorColumn::make(),
                 TextColumn::make('nip')->label('NIP')->placeholder('-'),
                 TextColumn::make('nama')->label('Nama Guru'),
                 TextColumn::make('jenis_kelamin')->label('Jenis Kelamin'),

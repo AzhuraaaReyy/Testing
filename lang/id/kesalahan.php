@@ -16,6 +16,22 @@ return [
     '503' => ['judul' => 'Sedang dalam pemeliharaan', 'pesan' => 'Sistem sedang dalam pemeliharaan. Silakan coba lagi nanti.'],
     '4xx' => ['judul' => 'Permintaan tidak dapat diproses', 'pesan' => 'Periksa kembali alamat halaman lalu coba lagi.'],
     '5xx' => ['judul' => 'Terjadi kesalahan', 'pesan' => 'Terjadi kesalahan pada server. Silakan coba lagi beberapa saat lagi.'],
+    /*
+    | Pesan error API (JSON). Kode tanpa entri memakai pesan bawaan exception bila ada
+    | (mis. 409 dari aturan bisnis), selain itu '4xx' / '5xx'.
+    */
+    'api' => [
+        '401' => 'Silakan login terlebih dahulu.',
+        '403' => 'Anda tidak memiliki akses.',
+        '404' => 'Endpoint tidak ditemukan.',
+        '404_data' => 'Data tidak ditemukan.',
+        '405' => 'Metode HTTP tidak diizinkan untuk endpoint ini.',
+        '429' => 'Terlalu banyak permintaan. Silakan coba lagi nanti.',
+        '500' => 'Terjadi kesalahan pada server.',
+        '503' => 'Sistem sedang dalam pemeliharaan.',
+        '4xx' => 'Permintaan tidak dapat diproses.',
+        '5xx' => 'Terjadi kesalahan pada server.',
+    ],
     'kembali' => 'Kembali ke beranda',
     'login' => 'Ke halaman login',
 ];

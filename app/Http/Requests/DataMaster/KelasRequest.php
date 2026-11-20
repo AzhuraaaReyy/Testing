@@ -3,6 +3,7 @@
 namespace App\Http\Requests\DataMaster;
 
 use App\Enums\Tingkat;
+use App\Http\Requests\Concerns\RecordDariRute;
 use App\Models\Kelas;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -15,6 +16,8 @@ use Illuminate\Validation\Rule;
  */
 final class KelasRequest extends FormRequest
 {
+    use RecordDariRute;
+
     public function authorize(): bool
     {
         return true;
@@ -25,9 +28,7 @@ final class KelasRequest extends FormRequest
      */
     public function rules(): array
     {
-        $kelas = $this->route('record');
-
-        return self::aturan($kelas instanceof Kelas ? $kelas : null);
+        return self::aturan($this->recordDariRute(Kelas::class, 'kelas'));
     }
 
     /**

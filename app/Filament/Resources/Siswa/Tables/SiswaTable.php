@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Siswa\Tables;
 
 use App\Filament\Forms\AturanFormRequest;
 use App\Filament\Forms\Components\KelasAktifSelect;
+use App\Filament\Tables\Columns\NomorColumn;
 use App\Http\Requests\DataMaster\SiswaRequest;
 use App\Models\Siswa;
 use Filament\Actions\DeleteAction;
@@ -23,6 +24,7 @@ class SiswaTable
         return $table
             ->defaultSort('nama')
             ->columns([
+                NomorColumn::make(),
                 TextColumn::make('nis')->label('NIS'),
                 TextColumn::make('nama')->label('Nama Siswa'),
                 TextColumn::make('jenis_kelamin')->label('Jenis Kelamin'),

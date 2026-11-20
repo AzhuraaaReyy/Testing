@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Filament\Tables\Columns\NomorColumn;
 use App\Models\Kelas;
 use App\Support\Format;
 use Filament\Tables\Columns\TextColumn;
@@ -33,6 +34,7 @@ class DistribusiKelasWidget extends TableWidget
             // withCount memakai scope SoftDeletes: hanya Siswa/Guru aktif yang dihitung (PRD 12.3).
             ->query(fn (): Builder => Kelas::query()->withCount($relasi)->urutanTampilan())
             ->columns([
+                NomorColumn::make(),
                 TextColumn::make('nama_kelas')->label('Nama Kelas'),
                 TextColumn::make('tingkat')->label('Tingkat')->badge(),
                 TextColumn::make('jurusan')->label('Jurusan')->placeholder('-'),

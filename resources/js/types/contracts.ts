@@ -58,6 +58,8 @@ export interface SiswaPayload {
     alamat: string;
     /** id Kelas aktif. */
     kelas_id: number;
+    /** Akun portal; tanpa kunci = tidak diubah, email kosong = hapus akun. */
+    akun?: AkunPortalPayload | null;
 }
 
 /** Cermin rules() App\Http\Requests\DataMaster\GuruRequest (form Guru, panel Admin). */
@@ -69,6 +71,28 @@ export interface GuruPayload {
     alamat: string;
     /** format 08… atau +628…. */
     no_telepon: string;
+    /** minimal satu id Kelas aktif. */
+    kelas: number[];
+    /** Akun portal; tanpa kunci = tidak diubah, email kosong = hapus akun. */
+    akun?: AkunPortalPayload | null;
+}
+
+/** Cermin rules() App\Http\Requests\DataMaster\DaftarDataMasterRequest (query GET /api/v1/{siswa|kelas|guru}). */
+export interface DaftarDataMasterQuery {
+    /** integer, min 1. Opsional; default 1. */
+    page?: number;
+    /** true = tab Trash. Opsional; default false. */
+    trash?: boolean;
+}
+
+/** Cermin rules() App\Http\Requests\DataMaster\PulihkanSiswaRequest (POST /api/v1/siswa/{id}/pulihkan). */
+export interface PulihkanSiswaPayload {
+    /** id Kelas aktif. */
+    kelas_id: number;
+}
+
+/** Cermin rules() App\Http\Requests\DataMaster\PulihkanGuruRequest (POST /api/v1/guru/{id}/pulihkan). */
+export interface PulihkanGuruPayload {
     /** minimal satu id Kelas aktif. */
     kelas: number[];
 }

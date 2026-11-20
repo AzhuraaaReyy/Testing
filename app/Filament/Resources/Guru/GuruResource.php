@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Guru;
 
+use App\Actions\DataMaster\SimpanGuruAction;
 use App\Enums\Icon;
 use App\Filament\Resources\DataMasterResource;
 use App\Filament\Resources\Guru\Pages\CreateGuru;
@@ -14,6 +15,7 @@ use App\Filament\Resources\Guru\Tables\GuruTable;
 use App\Models\Guru;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * CRUD Guru (PRD 7). Slug "guru" dipakai App\Services\NavigationService.
@@ -33,6 +35,22 @@ class GuruResource extends DataMasterResource
     protected static string $deskripsi = 'Kelola data Guru beserta Kelas yang diajar. Seorang Guru dapat mengajar lebih dari satu Kelas.';
 
     protected static ?int $navigationSort = 3;
+
+    public static function simpan(array $data, ?Model $record = null): Model
+    {
+        return app(SimpanGuruAction::class)->handle($data, self::recordSebagai($record, Guru::class));
+    }
+
+    public static function isiForm(Model $record, array $data): array
+    {
+        $guru = self::recordSebagai($record, Guru::class);
+
+        return [
+            ...$data,
+            'kelas' => $guru?->kelas->modelKeys() ?? [],
+            'akun' => ['email' => $guru?->akun?->email],
+        ];
+    }
 
     public static function form(Schema $schema): Schema
     {

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Kelas;
 
+use App\Actions\DataMaster\SimpanKelasAction;
 use App\Enums\Icon;
 use App\Filament\Resources\DataMasterResource;
 use App\Filament\Resources\Kelas\Pages\CreateKelas;
@@ -14,6 +15,7 @@ use App\Filament\Resources\Kelas\Tables\KelasTable;
 use App\Models\Kelas;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * CRUD Kelas (PRD 6). Slug "kelas" dipakai App\Services\NavigationService.
@@ -33,6 +35,11 @@ class KelasResource extends DataMasterResource
     protected static string $deskripsi = 'Kelola data Kelas berdasarkan Tingkat dan Jurusan. Kelas yang masih memiliki Siswa atau Guru aktif tidak dapat dihapus.';
 
     protected static ?int $navigationSort = 2;
+
+    public static function simpan(array $data, ?Model $record = null): Model
+    {
+        return app(SimpanKelasAction::class)->handle($data, self::recordSebagai($record, Kelas::class));
+    }
 
     public static function form(Schema $schema): Schema
     {

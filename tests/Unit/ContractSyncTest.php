@@ -12,10 +12,14 @@ use App\Enums\Tingkat;
 use App\Http\Requests\Admin\BuatAdminRequest;
 use App\Http\Requests\Auth\PortalLoginRequest;
 use App\Http\Requests\DataMaster\AkunPortalRequest;
+use App\Http\Requests\DataMaster\DaftarDataMasterRequest;
 use App\Http\Requests\DataMaster\GuruRequest;
 use App\Http\Requests\DataMaster\KelasRequest;
+use App\Http\Requests\DataMaster\PulihkanGuruRequest;
+use App\Http\Requests\DataMaster\PulihkanSiswaRequest;
 use App\Http\Requests\DataMaster\SiswaRequest;
 use App\Http\Requests\LaporanRequest;
+use Illuminate\Foundation\Http\FormRequest;
 
 /*
 | Menjaga agar resources/js/types/contracts.ts selalu identik dengan kontrak PHP.
@@ -150,15 +154,21 @@ it('menyamakan field payload dengan rules FormRequest', function (string $tsName
     ['SiswaPayload', SiswaRequest::class],
     ['GuruPayload', GuruRequest::class],
     ['AkunPortalPayload', AkunPortalRequest::class],
+    ['DaftarDataMasterQuery', DaftarDataMasterRequest::class],
+    ['PulihkanSiswaPayload', PulihkanSiswaRequest::class],
+    ['PulihkanGuruPayload', PulihkanGuruRequest::class],
 ]);
 
 it('mencerminkan setiap FormRequest aplikasi', function () {
     $source = contractsSource();
     $base = dirname(__DIR__, 2).'/app/Http/Requests';
     $requests = collect([...glob("{$base}/*.php"), ...glob("{$base}/*/*.php")])
-        ->map(fn (string $path): string => 'App\\'.str_replace(['/', '.php'], ['\\', ''], substr($path, strlen(dirname(__DIR__, 2).'/app/'))));
+        ->map(fn (string $path): string => 'App\\'.str_replace(['/', '.php'], ['\\', ''], substr($path, strlen(dirname(__DIR__, 2).'/app/'))))
+        // Hanya kelas FormRequest (bukan trait/helper di folder Concerns).
+        ->filter(fn (string $class): bool => is_subclass_of($class, FormRequest::class));
 
-    expect($requests->reject(fn (string $class): bool => str_contains($source, "Cermin rules() {$class}"))->values()->all())->toBe([]);
+    expect($requests)->not->toBeEmpty()
+        ->and($requests->reject(fn (string $class): bool => str_contains($source, "Cermin rules() {$class}"))->values()->all())->toBe([]);
 });
 
 it('menyamakan pesan validasi login sisi klien dengan server', function () {

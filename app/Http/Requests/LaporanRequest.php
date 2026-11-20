@@ -43,11 +43,11 @@ final class LaporanRequest extends FormRequest
 
     /**
      * Navigasi biasa: `page` tidak valid (mis. "abc" atau 0) diarahkan ke halaman pertama.
-     * Permintaan parsial: biarkan Laravel membalas 422 JSON standar agar klien dapat menampilkannya.
+     * Permintaan parsial & API (JSON): biarkan Laravel membalas 422 JSON standar.
      */
     protected function failedValidation(Validator $validator): void
     {
-        if (PartialResponse::isPartial($this)) {
+        if (PartialResponse::isPartial($this) || $this->expectsJson()) {
             parent::failedValidation($validator);
         }
 

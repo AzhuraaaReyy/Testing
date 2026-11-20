@@ -39,4 +39,21 @@ final class AkunPortalRequest extends FormRequest
             'password' => [filled($email) && $akun === null ? 'required' : 'nullable', 'string', 'min:8'],
         ];
     }
+
+    /**
+     * Aturan yang sama sebagai objek bersarang "akun" di payload Siswa/Guru (API).
+     * Tanpa kunci "akun" = akun tidak diubah.
+     *
+     * @return array<string, list<mixed>>
+     */
+    public static function aturanBersarang(?User $akun = null, ?string $email = null): array
+    {
+        $aturan = ['akun' => ['sometimes', 'nullable', 'array:email,password']];
+
+        foreach (self::aturan($akun, $email) as $field => $daftar) {
+            $aturan["akun.{$field}"] = $daftar;
+        }
+
+        return $aturan;
+    }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\DataMaster;
 
 use App\Enums\JenisKelamin;
+use App\Http\Requests\Concerns\RecordDariRute;
 use App\Models\Guru;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Arr;
@@ -16,6 +17,8 @@ use Illuminate\Validation\Rule;
  */
 final class GuruRequest extends FormRequest
 {
+    use RecordDariRute;
+
     /** 08xxxxxxxx atau +628xxxxxxxx, total 10–15 digit. */
     public const POLA_TELEPON = '/^(\+62|0)8[0-9]{7,12}$/';
 
@@ -29,9 +32,9 @@ final class GuruRequest extends FormRequest
      */
     public function rules(): array
     {
-        $guru = $this->route('record');
+        $guru = $this->recordDariRute(Guru::class, 'guru');
 
-        return self::aturan($guru instanceof Guru ? $guru : null);
+        return [...self::aturan($guru), ...AkunPortalRequest::aturanBersarang($guru?->akun, $this->string('akun.email')->toString())];
     }
 
     /**

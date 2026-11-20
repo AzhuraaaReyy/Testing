@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Pages;
 
-use App\Filament\Resources\Pages\Concerns\SubjudulDataMaster;
+use App\Filament\Resources\Pages\Concerns\HalamanDataMaster;
 use App\Models\Guru;
 use App\Models\Kelas;
 use App\Models\Siswa;
@@ -25,7 +25,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
  */
 abstract class ListDataMasterRecords extends ListRecords
 {
-    use SubjudulDataMaster;
+    use HalamanDataMaster;
 
     /** Subjudul mengikuti tab yang sedang dibuka (Aktif / Trash). */
     protected function jenisHalaman(): string

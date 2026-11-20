@@ -184,6 +184,10 @@ return [
         'kelas' => 'Kelas',
         'email' => 'Email',
         'password' => 'Password',
+        // Akun portal bersarang di payload Siswa/Guru (API).
+        'akun' => 'Akun Portal',
+        'akun.email' => 'Email',
+        'akun.password' => 'Password',
         'page' => 'Halaman',
     ],
 ];
