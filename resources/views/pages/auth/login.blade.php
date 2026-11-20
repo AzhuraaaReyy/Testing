@@ -17,6 +17,18 @@
             <x-molecules.alert variant="info" class="mt-5">{{ session(\App\Support\SesiLogin::FLASH) }}</x-molecules.alert>
         @endif
 
+        @if ($adminAktif)
+            {{-- Satu browser = satu session: Admin harus logout dulu sebelum Guru/Siswa bisa login. --}}
+            <x-molecules.alert variant="info" class="mt-5">{{ \App\Enums\Role::Admin->pesanSudahLogin() }}</x-molecules.alert>
+
+            <div class="mt-6 flex flex-col gap-3">
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <x-atoms.button type="submit" variant="primary" :icon="\App\Enums\Icon::LogOut" class="w-full text-base">Logout dari Admin</x-atoms.button>
+                </form>
+                <x-atoms.button :href="route('filament.admin.pages.dashboard')" class="w-full text-base">Kembali ke panel Admin</x-atoms.button>
+            </div>
+        @else
         <form method="POST" action="{{ route('login.store') }}" novalidate data-login-form class="mt-6 flex flex-col gap-5">
             @csrf
 
@@ -50,6 +62,7 @@
                 <span data-submit-label>Login</span>
             </button>
         </form>
+        @endif
     </section>
 
     <p class="text-center text-sm text-ink-muted">

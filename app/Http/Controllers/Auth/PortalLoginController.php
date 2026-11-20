@@ -5,16 +5,22 @@ namespace App\Http\Controllers\Auth;
 use App\Actions\Auth\AuthenticateUserAction;
 use App\Actions\Auth\LogoutUserAction;
 use App\Enums\PintuLogin;
+use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 final class PortalLoginController extends Controller
 {
-    public function create(): View
+    /**
+     * $adminAktif: Admin masih login di browser ini (lihat RedirectIfAuthenticatedPortal);
+     * form diganti penjelasan + tombol logout.
+     */
+    public function create(Request $request): View
     {
-        return view('pages.auth.login');
+        return view('pages.auth.login', ['adminAktif' => $request->user()?->role === Role::Admin]);
     }
 
     public function store(LoginRequest $request, AuthenticateUserAction $authenticate): RedirectResponse

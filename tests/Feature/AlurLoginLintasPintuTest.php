@@ -4,7 +4,6 @@ use App\Actions\Auth\AuthenticateUserAction;
 use App\Enums\Role;
 use App\Filament\Pages\Auth\Login;
 use App\Models\User;
-use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
@@ -73,12 +72,42 @@ it('tidak membawa Admin ke halaman portal yang tadinya diminta', function () {
     loginAdmin($admin->email)->assertRedirect(filament()->getUrl());
 });
 
-it('menjelaskan kepada Admin yang membuka login portal bahwa ia perlu logout dulu', function () {
+it('menjelaskan di halaman login portal bahwa Admin perlu logout dulu, tanpa melempar ke panel', function () {
     $this->actingAs(User::factory()->create())
         ->get('/login')
-        ->assertRedirect(filament()->getUrl());
+        ->assertOk()
+        ->assertHeader('Cache-Control', 'max-age=0, must-revalidate, no-cache, no-store, private')
+        ->assertSeeText(Role::Admin->pesanSudahLogin())
+        ->assertSeeText('Logout dari Admin')
+        ->assertSee('action="'.route('logout').'"', escape: false)
+        ->assertSee('href="'.route('filament.admin.pages.dashboard').'"', escape: false)
+        ->assertDontSee('action="'.route('login.store').'"', escape: false);
+});
 
-    Notification::assertNotified(Role::Admin->pesanSudahLogin());
+it('tidak memproses login portal selama Admin masih login (mis. form dari tab lama)', function () {
+    $admin = User::factory()->create();
+    $siswa = User::factory()->siswa()->create();
+
+    $this->actingAs($admin)
+        ->post('/login', ['email' => $siswa->email, 'password' => 'password'])
+        ->assertRedirect(route('login'));
+
+    $this->assertAuthenticatedAs($admin);
+});
+
+it('Admin yang logout dari halaman login portal lalu bisa login sebagai Siswa', function () {
+    $siswa = User::factory()->siswa()->create();
+
+    $this->actingAs(User::factory()->create())->post(route('logout'))->assertRedirect(route('login'));
+    $this->assertGuest();
+
+    $this->post('/login', ['email' => $siswa->email, 'password' => 'password'])
+        ->assertRedirect(route('portal.dashboard'));
+    $this->assertAuthenticatedAs($siswa);
+});
+
+it('mengarahkan tamu yang mengirim logout portal (session berakhir) ke Login portal, bukan Admin', function () {
+    $this->post(route('logout'))->assertRedirect(route('login'));
 });
 
 it('mengarahkan Guru/Siswa yang membuka login Admin ke portal dengan penjelasan, bukan 403', function (string $state) {

@@ -6,6 +6,7 @@ use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\PortalDashboardController;
 use App\Http\Middleware\EnsureRole;
 use App\Http\Middleware\PreventSensitiveCaching;
+use App\Http\Middleware\RedirectIfAuthenticatedPortal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,8 +15,10 @@ Route::get('/', fn (Request $request) => redirect()->route($request->user()?->ro
 
 /*
 | Login portal Guru/Siswa (Blade). Login Admin dilayani panel Filament di /admin/login.
+| Admin yang masih login melihat penjelasan "logout dulu" di halaman ini (RedirectIfAuthenticatedPortal);
+| no-store agar halaman yang memuat status session tidak tersimpan di cache browser.
 */
-Route::middleware('guest')->group(function (): void {
+Route::middleware([RedirectIfAuthenticatedPortal::class, PreventSensitiveCaching::class])->group(function (): void {
     Route::get('/login', [PortalLoginController::class, 'create'])->name('login');
     Route::post('/login', [PortalLoginController::class, 'store'])->name('login.store');
 });

@@ -1,11 +1,9 @@
 <?php
 
-use App\Enums\Role;
 use App\Exceptions\ApiExceptionRenderer;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\PartialResponse;
 use App\Support\SesiLogin;
-use Filament\Notifications\Notification;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -31,21 +29,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustHosts();
 
         // Dua pintu login: Admin di panel Filament, Guru/Siswa di portal Blade (/login).
-        $middleware->redirectGuestsTo(fn (Request $request) => $request->is('portal', 'portal/*')
+        // POST /logout milik portal: tamu (session sudah berakhir) kembali ke Login portal, bukan Admin.
+        $middleware->redirectGuestsTo(fn (Request $request) => $request->is('portal', 'portal/*', 'logout')
             ? route('login')
             : route('filament.admin.auth.login'));
 
-        // Pengguna yang sudah login dan membuka /login diarahkan ke beranda perannya.
-        $middleware->redirectUsersTo(function (Request $request): string {
-            $role = $request->user()?->role;
-
-            // Admin membuka login portal: jelaskan kenapa dialihkan (satu browser = satu akun).
-            if ($role === Role::Admin && $request->routeIs('login', 'login.store')) {
-                Notification::make()->info()->title($role->pesanSudahLogin())->send();
-            }
-
-            return route($role?->homeRoute() ?? 'login');
-        });
+        // Pengguna yang sudah login dan membuka halaman khusus tamu diarahkan ke beranda perannya.
+        // (Login portal memakai RedirectIfAuthenticatedPortal agar Admin mendapat penjelasan.)
+        $middleware->redirectUsersTo(fn (Request $request): string => route($request->user()?->role->homeRoute() ?? 'login'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // API: error JSON {message} berbahasa Indonesia (401/403/404/405/409/429/500).
