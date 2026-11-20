@@ -8,8 +8,8 @@ use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
 /**
- * Dropdown akun Admin (PRD 17.1). Admin yang login diinjeksi oleh container,
- * sehingga view tidak mengambil data autentikasi sendiri.
+ * Dropdown akun portal (PRD 17.1): Nama, Email, Logout. Pengguna yang login diinjeksi oleh
+ * container, sehingga view tidak mengambil data autentikasi sendiri.
  */
 final class AccountMenu extends Component
 {

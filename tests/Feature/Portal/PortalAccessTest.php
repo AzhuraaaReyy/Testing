@@ -3,16 +3,17 @@
 use App\DTOs\Dashboard\RingkasanSekolahData;
 use App\Enums\JenisLaporan;
 use App\Enums\Tingkat;
+use App\Filament\Pages\Laporan;
 use App\Models\Guru;
 use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Models\User;
 
 describe('pemisahan akses per peran', function () {
-    it('mengarahkan Guru/Siswa yang membuka laporan Admin ke portal', function (string $state) {
+    it('menolak Guru/Siswa membuka laporan Admin', function (string $state) {
         $this->actingAs(User::factory()->{$state}()->create())
-            ->get(route('laporan.show', JenisLaporan::SiswaPerKelas))
-            ->assertRedirect(route('portal.dashboard'));
+            ->get(Laporan::getUrl(['jenis' => JenisLaporan::SiswaPerKelas]))
+            ->assertForbidden();
     })->with(['guru', 'siswa']);
 
     it('menolak Guru/Siswa membuka panel Filament', function (string $state) {

@@ -1,6 +1,6 @@
 {{--
     View untuk App\View\Components\Organisms\AccountMenu. @var \App\Models\User $user
-    Dropdown akun Admin (PRD 17.1): Nama, Email, Logout. Tidak ada pengelolaan profil.
+    Dropdown akun portal (PRD 17.1): Nama, Email, Logout. Tidak ada pengelolaan profil.
 --}}
 <div class="relative" data-disclosure>
     <button

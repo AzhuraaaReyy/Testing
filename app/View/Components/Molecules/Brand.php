@@ -11,6 +11,7 @@ use Illuminate\View\Component;
 /**
  * Identitas sistem di Navbar (PRD 17.1): logo jika tersedia, selain itu placeholder monogram.
  * Tautan mengarah ke beranda sesuai peran pengguna (tamu: halaman Login portal).
+ * Dipakai juga sebagai logo panel Filament dengan :link="false" (Filament sudah membungkusnya dengan tautan).
  */
 final class Brand extends Component
 {
@@ -23,6 +24,7 @@ final class Brand extends Component
         #[Config('sekolah.nama_sistem')] public string $namaSistem,
         #[Config('sekolah.nama_sekolah')] public ?string $namaSekolah = null,
         #[Config('sekolah.logo')] public ?string $logo = null,
+        public bool $link = true,
     ) {
         /** @var User|null $user */
         $user = $request->user();

@@ -23,15 +23,10 @@ Route::middleware('guest')->group(function (): void {
 Route::post('/logout', [PortalLoginController::class, 'destroy'])->middleware('auth')->name('logout');
 
 /*
-| Admin: laporan seluruh Kelas. Dashboard & CRUD Admin dilayani Filament (PRD 3.2).
-*/
-Route::middleware(['auth', EnsureRole::for(Role::Admin), PreventSensitiveCaching::class])->group(function (): void {
-    // {jenis} di-bind otomatis ke enum App\Enums\JenisLaporan; nilai lain menghasilkan 404.
-    Route::get('/laporan/{jenis}', LaporanController::class)->name('laporan.show');
-});
-
-/*
+| Seluruh halaman Admin (Dashboard, CRUD, Trash, Laporan) dilayani panel Filament di /admin.
+|
 | Portal Guru/Siswa: read-only, tanpa CRUD (PRD v1.3).
+| {jenis} di-bind otomatis ke enum App\Enums\JenisLaporan; nilai lain menghasilkan 404.
 */
 Route::middleware(['auth', EnsureRole::for(Role::Guru, Role::Siswa), PreventSensitiveCaching::class])
     ->prefix('portal')

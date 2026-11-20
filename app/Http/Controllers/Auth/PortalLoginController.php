@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Actions\Auth\AuthenticatePortalUserAction;
+use App\Actions\Auth\AuthenticateUserAction;
+use App\Actions\Auth\LogoutUserAction;
+use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\PortalLoginRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 final class PortalLoginController extends Controller
 {
@@ -17,9 +17,9 @@ final class PortalLoginController extends Controller
         return view('pages.auth.login');
     }
 
-    public function store(PortalLoginRequest $request, AuthenticatePortalUserAction $authenticate): RedirectResponse
+    public function store(PortalLoginRequest $request, AuthenticateUserAction $authenticate): RedirectResponse
     {
-        $authenticate->handle($request->email(), $request->password(), (string) $request->ip());
+        $authenticate->handle($request->email(), $request->password(), (string) $request->ip(), Role::Guru, Role::Siswa);
 
         $request->session()->regenerate();
 
@@ -27,13 +27,10 @@ final class PortalLoginController extends Controller
         return redirect()->intended(route('portal.dashboard'));
     }
 
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(LogoutUserAction $logout): RedirectResponse
     {
-        Auth::logout();
+        $logout->handle();
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect()->route('login')->with('status', 'Anda berhasil keluar dari sistem.');
+        return redirect()->route('login')->with('status', LogoutUserAction::BERHASIL);
     }
 }

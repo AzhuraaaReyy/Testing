@@ -3,12 +3,16 @@
  * dapat dinyatakan sebagai utility (state shell berbasis atribut, animasi progress).
  *
  *   tokens.css               design tokens (@theme) — satu-satunya tempat nilai warna/font
- *   base.css                 reset ringan, fokus, utility kustom, reduced motion
+ *   utilities.css            utility kustom (dipakai juga tema Filament)
+ *   base.css                 reset ringan, fokus, reduced motion
  *   components/shell.css     Sidebar/drawer (organisms/sidebar)
  *   components/table-region.css  loading & error tabel (organisms/table-region)
+ *
+ * Tema panel Admin: resources/css/filament/admin/theme.css (memakai tokens.css yang sama).
  */
 @import 'tailwindcss';
 @import './tokens.css';
+@import './utilities.css';
 @import './base.css';
 @import './components/shell.css';
 @import './components/table-region.css';

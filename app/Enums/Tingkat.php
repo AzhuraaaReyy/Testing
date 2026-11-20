@@ -2,16 +2,18 @@
 
 namespace App\Enums;
 
+use Filament\Support\Contracts\HasLabel;
+
 /**
  * Tingkat Kelas (PRD 6.2). Urutan case = urutan tampilan X → XI → XII.
  */
-enum Tingkat: string
+enum Tingkat: string implements HasLabel
 {
     case X = 'X';
     case XI = 'XI';
     case XII = 'XII';
 
-    public function label(): string
+    public function getLabel(): string
     {
         return $this->value;
     }

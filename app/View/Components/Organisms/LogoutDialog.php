@@ -2,21 +2,19 @@
 
 namespace App\View\Components\Organisms;
 
-use App\Models\User;
-use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
 /**
- * Konfirmasi logout (PRD 4.7). Admin keluar lewat rute Filament, Guru/Siswa lewat rute portal.
+ * Konfirmasi logout portal Guru/Siswa (PRD 4.7). Logout Admin dikonfirmasi oleh user menu Filament.
  */
 final class LogoutDialog extends Component
 {
     public readonly string $action;
 
-    public function __construct(#[CurrentUser] User $user)
+    public function __construct()
     {
-        $this->action = route($user->role->logoutRoute());
+        $this->action = route('logout');
     }
 
     public function render(): View

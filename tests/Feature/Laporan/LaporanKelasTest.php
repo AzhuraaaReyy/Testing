@@ -2,11 +2,13 @@
 
 use App\Enums\JenisLaporan;
 use App\Enums\Tingkat;
+use App\Filament\Pages\Laporan;
 use App\Http\PartialResponse;
 use App\Models\Guru;
 use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Models\User;
+use Livewire\Livewire;
 
 beforeEach(function () {
     $this->admin = User::factory()->create();
@@ -14,7 +16,7 @@ beforeEach(function () {
 
 function urlLaporan(JenisLaporan $jenis, array $query = []): string
 {
-    return route('laporan.show', ['jenis' => $jenis, ...$query]);
+    return Laporan::getUrl(['jenis' => $jenis, ...$query]);
 }
 
 describe('akses', function () {
@@ -33,7 +35,7 @@ describe('akses', function () {
     })->with(JenisLaporan::cases());
 
     it('mengembalikan 404 untuk jenis laporan yang tidak dikenal', function () {
-        $this->actingAs($this->admin)->get('/laporan/tidak-ada')->assertNotFound();
+        $this->actingAs($this->admin)->get('/admin/laporan/tidak-ada')->assertNotFound();
     });
 });
 
@@ -143,35 +145,57 @@ describe('pagination', function () {
             ->assertSee('Menampilkan 11–12 dari 12 data');
     });
 
-    it('mengarahkan halaman di luar jangkauan ke halaman terakhir yang valid', function () {
+    it('membawa halaman di luar jangkauan ke halaman terakhir yang valid', function () {
         $this->actingAs($this->admin)
             ->get(urlLaporan(JenisLaporan::SiswaPerKelas, ['page' => 9]))
-            ->assertRedirect(urlLaporan(JenisLaporan::SiswaPerKelas, ['page' => 2]));
+            ->assertOk()
+            ->assertSee('X IPA 12')
+            ->assertSee('Menampilkan 11–12 dari 12 data');
     });
 
-    it('mengarahkan nilai page yang tidak valid ke halaman pertama', function (mixed $page) {
+    it('memperlakukan nilai page yang tidak valid sebagai halaman pertama', function (mixed $page) {
         $this->actingAs($this->admin)
             ->get(urlLaporan(JenisLaporan::SiswaPerKelas, ['page' => $page]))
-            ->assertRedirect(urlLaporan(JenisLaporan::SiswaPerKelas));
+            ->assertOk()
+            ->assertSee('Menampilkan 1–10 dari 12 data');
     })->with(['abc', 0, -1]);
 
-    it('mengembalikan hanya fragmen tabel untuk permintaan parsial', function () {
-        $response = $this->actingAs($this->admin)
+    it('berpindah halaman di tempat tanpa memuat ulang halaman', function () {
+        $this->actingAs($this->admin);
+
+        Livewire::test(Laporan::class, ['jenis' => JenisLaporan::SiswaPerKelas])
+            ->assertSee('X IPA 01')
+            ->call('gotoPage', 2)
+            ->assertSee('X IPA 12')
+            ->assertDontSee('X IPA 01');
+    });
+});
+
+/*
+| Permintaan parsial (fetch fragmen tabel) hanya dipakai laporan portal (resources/js/components/table-region.ts).
+*/
+describe('permintaan parsial portal', function () {
+    beforeEach(function () {
+        $this->siswa = User::factory()->siswa()->create();
+    });
+
+    it('mengembalikan hanya fragmen tabel', function () {
+        $response = $this->actingAs($this->siswa)
             ->withHeader(PartialResponse::HEADER, PartialResponse::TABEL)
-            ->get(urlLaporan(JenisLaporan::SiswaPerKelas, ['page' => 2]));
+            ->get(route('portal.laporan.show', JenisLaporan::SiswaPerKelas));
 
         $response->assertOk()
-            ->assertSee('X IPA 12')
+            ->assertSee($this->siswa->siswa->kelas->nama_kelas)
             ->assertDontSee('<html', escape: false)
             ->assertDontSee('Navigasi utama');
 
         expect($response->headers->get('Vary'))->toContain(PartialResponse::HEADER);
     });
 
-    it('membalas 422 JSON standar Laravel untuk permintaan parsial dengan page tidak valid', function () {
-        $this->actingAs($this->admin)
+    it('membalas 422 JSON standar Laravel untuk page tidak valid', function () {
+        $this->actingAs($this->siswa)
             ->withHeader(PartialResponse::HEADER, PartialResponse::TABEL)
-            ->get(urlLaporan(JenisLaporan::SiswaPerKelas, ['page' => 'abc']))
+            ->get(route('portal.laporan.show', ['jenis' => JenisLaporan::SiswaPerKelas, 'page' => 'abc']))
             ->assertUnprocessable()
             ->assertJsonStructure(['message', 'errors' => ['page']]);
     });

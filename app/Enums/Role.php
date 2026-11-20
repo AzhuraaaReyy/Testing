@@ -24,14 +24,6 @@ enum Role: string
     }
 
     /**
-     * Nama menu/halaman beranda. Portal memakai "Beranda" yang lebih akrab bagi Guru/Siswa.
-     */
-    public function labelBeranda(): string
-    {
-        return $this === self::Admin ? 'Dashboard' : 'Beranda';
-    }
-
-    /**
      * Nama grup menu laporan, dari sudut pandang pengguna.
      */
     public function labelGrupLaporan(): string
@@ -51,18 +43,5 @@ enum Role: string
     public function loginRoute(): string
     {
         return $this === self::Admin ? 'filament.admin.auth.login' : 'login';
-    }
-
-    public function logoutRoute(): string
-    {
-        return $this === self::Admin ? 'filament.admin.auth.logout' : 'logout';
-    }
-
-    /**
-     * Rute laporan yang dipakai peran ini (Admin: seluruh Kelas, portal: Kelas sendiri).
-     */
-    public function laporanRoute(): string
-    {
-        return $this === self::Admin ? 'laporan.show' : 'portal.laporan.show';
     }
 }

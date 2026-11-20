@@ -1,12 +1,12 @@
 <?php
 
-use App\Actions\Auth\AuthenticatePortalUserAction;
+use App\Actions\Auth\AuthenticateUserAction;
 use App\Models\Siswa;
 use App\Models\User;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Testing\TestResponse;
 
-beforeEach(fn () => RateLimiter::clear('portal-login:siswa@sekolah.test|127.0.0.1'));
+beforeEach(fn () => RateLimiter::clear('login:siswa@sekolah.test|127.0.0.1'));
 
 function loginPortal(string $email, string $password = 'password'): TestResponse
 {
@@ -35,7 +35,7 @@ it('meloginkan Guru dan Siswa lalu mengarahkan ke Dashboard portal', function (s
 it('menolak akun Admin di login portal dengan pesan umum', function () {
     $admin = User::factory()->create();
 
-    loginPortal($admin->email)->assertSessionHasErrors(['email' => AuthenticatePortalUserAction::GAGAL]);
+    loginPortal($admin->email)->assertSessionHasErrors(['email' => AuthenticateUserAction::GAGAL]);
 
     $this->assertGuest();
 });
@@ -43,8 +43,8 @@ it('menolak akun Admin di login portal dengan pesan umum', function () {
 it('menolak kredensial salah dengan pesan umum', function () {
     $user = User::factory()->siswa()->create();
 
-    loginPortal($user->email, 'salah')->assertSessionHasErrors(['email' => AuthenticatePortalUserAction::GAGAL]);
-    loginPortal('tidak-ada@sekolah.test')->assertSessionHasErrors(['email' => AuthenticatePortalUserAction::GAGAL]);
+    loginPortal($user->email, 'salah')->assertSessionHasErrors(['email' => AuthenticateUserAction::GAGAL]);
+    loginPortal('tidak-ada@sekolah.test')->assertSessionHasErrors(['email' => AuthenticateUserAction::GAGAL]);
 });
 
 it('memvalidasi format email dengan pesan PRD', function () {
@@ -73,7 +73,7 @@ it('menolak login Siswa yang berada di Trash', function () {
     $siswa->update(['kelas_id' => null]);
     $siswa->delete();
 
-    loginPortal($user->email)->assertSessionHasErrors(['email' => AuthenticatePortalUserAction::GAGAL]);
+    loginPortal($user->email)->assertSessionHasErrors(['email' => AuthenticateUserAction::GAGAL]);
 });
 
 it('logout mengakhiri session dan menampilkan pesan keberhasilan', function () {

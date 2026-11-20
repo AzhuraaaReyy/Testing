@@ -1,0 +1,17 @@
+/*
+ * Tema panel Admin (Filament). Memakai token yang sama dengan halaman Blade (tokens.css),
+ * sehingga komponen Blade bersama (laporan, kartu ringkasan, brand) tampil identik di panel.
+ */
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+@import '../../tokens.css';
+@import '../../utilities.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../app/Enums/**/*.php';
+@source '../../../../resources/views/filament/**/*';
+@source '../../../../resources/views/components/**/*';
+
+/* Tabel di layar kecil: tetap dapat di-swipe horizontal, scrollbar disembunyikan (PRD 17.5). */
+.fi-ta-content-ctn {
+    @apply scrollbar-none;
+}

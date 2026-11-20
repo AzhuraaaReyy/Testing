@@ -2,58 +2,102 @@
 
 namespace App\Providers\Filament;
 
-use App\Enums\JenisLaporan;
+use App\Actions\Auth\LogoutUserAction;
+use App\Enums\Role;
+use App\Filament\Pages\Auth\Login;
 use App\Http\Middleware\PreventSensitiveCaching;
+use Filament\Actions\Action;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Navigation\NavigationItem;
-use Filament\Pages\Dashboard;
+use Filament\Notifications\Notification;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
+use Filament\Tables\Table;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Contracts\View\View;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Livewire\Component;
 
 class AdminPanelProvider extends PanelProvider
 {
+    /**
+     * Default bersama seluruh tabel & aksi panel, agar tiap Resource tidak mengulanginya.
+     */
+    public function boot(): void
+    {
+        // 10 data per halaman tanpa pilihan jumlah (PRD 15.2); satu opsi = pemilih disembunyikan.
+        Table::configureUsing(fn (Table $table): Table => $table->paginated([10]));
+
+        // Label aksi sesuai PRD 14.1: Detail, Edit, Hapus.
+        ViewAction::configureUsing(fn (ViewAction $action): ViewAction => $action->label('Detail'));
+        EditAction::configureUsing(fn (EditAction $action): EditAction => $action->label('Edit'));
+    }
+
     public function panel(Panel $panel): Panel
     {
         return $panel
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
+            // Tema memakai resources/css/tokens.css yang sama dengan halaman Blade.
+            ->viteTheme('resources/css/filament/admin/theme.css')
+            ->login(Login::class)
             ->brandName(config('sekolah.nama_sistem'))
-            // Senada dengan --font-sans di resources/css/tokens.css.
+            // Logo/placeholder + nama sistem/sekolah, komponen yang sama dengan Navbar portal (PRD 17.1).
+            ->brandLogo(fn (): Htmlable => new HtmlString(Blade::render('<x-molecules.brand :link="false" />')))
+            ->brandLogoHeight('2.25rem')
             ->font('Roboto')
             ->colors([
-                // Senada dengan token --color-primary di resources/css/app.css.
+                // Senada dengan token --color-primary di tokens.css.
                 'primary' => Color::Teal,
             ])
-            ->navigationItems(array_map(
-                fn (JenisLaporan $jenis): NavigationItem => NavigationItem::make($jenis->labelMenu())
-                    ->group('Laporan')
-                    ->url(fn (): string => route('laporan.show', $jenis)),
-                JenisLaporan::cases(),
-            ))
+            // Token desain hanya punya mode terang.
+            ->darkMode(false)
+            // Sidebar desktop terbuka default & dapat diciutkan jadi ikon (PRD 17.2).
+            ->sidebarCollapsibleOnDesktop()
+            ->navigationGroups(['Data Master', Role::Admin->labelGrupLaporan()])
+            // Dropdown akun: Nama, Email, Logout dengan konfirmasi (PRD 4.7, 17.1).
+            ->renderHook(PanelsRenderHook::USER_MENU_PROFILE_AFTER, fn (): View => view('filament.user-menu-email'))
+            ->userMenuItems([
+                'logout' => fn (Action $action): Action => $action
+                    ->url(null)
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->modalHeading('Keluar dari sistem')
+                    ->modalDescription('Apakah Anda yakin ingin keluar dari sistem?')
+                    ->modalSubmitActionLabel('Ya, Logout')
+                    ->modalCancelActionLabel('Batal')
+                    ->action(function (Component $livewire): void {
+                        app(LogoutUserAction::class)->handle();
+
+                        Notification::make()->success()->title(LogoutUserAction::BERHASIL)->send();
+
+                        $livewire->redirect(Filament::getLoginUrl());
+                    }),
+            ])
+            // Setelah tambah/edit kembali ke daftar (PRD 14.6); perubahan belum disimpan dikonfirmasi (PRD 14.5).
+            ->resourceCreatePageRedirect('index')
+            ->resourceEditPageRedirect('index')
+            ->unsavedChangesAlerts()
+            // Simpan profil + akun portal + relasi Kelas secara atomik.
+            ->databaseTransactions()
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
-            ->pages([
-                Dashboard::class,
-            ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
-            ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
-            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

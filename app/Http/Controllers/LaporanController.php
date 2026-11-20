@@ -14,8 +14,8 @@ use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 /**
- * Satu controller untuk laporan Admin (/laporan) dan portal Guru/Siswa (/portal/laporan).
- * Cakupan Kelas ditentukan oleh peran pengguna, bukan oleh rute.
+ * Laporan portal Guru/Siswa (/portal/laporan). Cakupan Kelas ditentukan oleh peran pengguna.
+ * Laporan Admin: App\Filament\Pages\Laporan (action & tabel Blade yang sama).
  */
 final class LaporanController extends Controller
 {

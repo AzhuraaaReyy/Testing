@@ -28,6 +28,27 @@ class Kelas extends Model
     /** @use HasFactory<KelasFactory> */
     use HasFactory, SoftDeletes;
 
+    /**
+     * Penjaga terakhir integritas relasi: Kelas yang masih dipakai tidak dapat masuk Trash.
+     */
+    protected static function booted(): void
+    {
+        static::deleting(fn (Kelas $kelas): bool => $kelas->alasanTidakDapatDihapus() === null);
+    }
+
+    /**
+     * Alasan Kelas tidak dapat dihapus, atau null bila boleh. Hanya Siswa/Guru aktif yang
+     * dihitung; relasi dengan data di Trash tidak menghalangi (PRD 6.6, 21.3).
+     */
+    public function alasanTidakDapatDihapus(): ?string
+    {
+        return match (true) {
+            $this->siswa()->exists() => 'Kelas masih memiliki Siswa aktif.',
+            $this->guru()->exists() => 'Kelas masih memiliki Guru aktif yang terhubung.',
+            default => null,
+        };
+    }
+
     protected function casts(): array
     {
         return [

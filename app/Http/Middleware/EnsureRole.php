@@ -2,11 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use App\Actions\Auth\LogoutUserAction;
 use App\Enums\Role;
 use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -27,9 +27,7 @@ final class EnsureRole
         $user = $request->user();
 
         if (! $user->isActive()) {
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
+            app(LogoutUserAction::class)->handle();
 
             return redirect()->route($user->role->loginRoute());
         }

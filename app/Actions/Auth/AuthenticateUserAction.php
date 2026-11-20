@@ -11,13 +11,13 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Login portal Guru/Siswa.
+ * Login satu pintu untuk panel Admin (Filament) dan portal Guru/Siswa (Blade).
  * - Pesan gagal bersifat umum, tidak membedakan email/password (PRD 4.4).
  * - Maksimal 3 kegagalan, lalu dibatasi 15 menit; reset setelah berhasil (PRD 4.5).
- * - Akun Admin ditolak di sini (login Admin lewat panel Filament), begitu pula akun
- *   yang profilnya sudah di Trash.
+ * - Akun dengan peran di luar $peran ditolak, begitu pula akun yang profilnya
+ *   sudah di Trash (PRD 22.2).
  */
-final class AuthenticatePortalUserAction
+final class AuthenticateUserAction
 {
     public const MAX_ATTEMPTS = 3;
 
@@ -26,9 +26,9 @@ final class AuthenticatePortalUserAction
     public const GAGAL = 'Email atau password yang Anda masukkan salah.';
 
     /**
-     * @throws ValidationException
+     * @throws ValidationException Pesan pada kunci "email".
      */
-    public function handle(string $email, string $password, string $ip): User
+    public function handle(string $email, string $password, string $ip, Role ...$peran): User
     {
         $key = $this->throttleKey($email, $ip);
 
@@ -42,7 +42,7 @@ final class AuthenticatePortalUserAction
 
         $user = User::query()->where('email', $email)->first();
 
-        if (! $user || ! Hash::check($password, $user->password) || $user->role === Role::Admin || ! $user->isActive()) {
+        if (! $user || ! Hash::check($password, $user->password) || ! in_array($user->role, $peran, true) || ! $user->isActive()) {
             RateLimiter::hit($key, self::DECAY_SECONDS);
 
             throw ValidationException::withMessages(['email' => self::GAGAL]);
@@ -56,6 +56,6 @@ final class AuthenticatePortalUserAction
 
     private function throttleKey(string $email, string $ip): string
     {
-        return 'portal-login:'.Str::transliterate(Str::lower($email)).'|'.$ip;
+        return 'login:'.Str::transliterate(Str::lower($email)).'|'.$ip;
     }
 }
