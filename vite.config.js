@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
-import { bunny } from 'laravel-vite-plugin/fonts';
+import { fontsource } from 'laravel-vite-plugin/fonts';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
@@ -14,8 +14,11 @@ export default defineConfig({
                 'resources/js/filament/admin.ts',
             ],
             refresh: true,
+            // Roboto dari paket npm @fontsource/roboto (versi terkunci di package-lock.json), bukan
+            // diunduh dari fonts.bunny.net saat build: build (lokal & CI) tidak bergantung pada
+            // layanan pihak ketiga yang bisa down (mis. 504 Gateway Timeout).
             fonts: [
-                bunny('Roboto', {
+                fontsource('Roboto', {
                     weights: [400, 500, 600, 700],
                 }),
             ],
