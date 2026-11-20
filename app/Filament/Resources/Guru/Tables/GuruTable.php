@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Guru\Tables;
 
 use App\Filament\Forms\AturanFormRequest;
 use App\Filament\Forms\Components\KelasAktifSelect;
+use App\Filament\LabelBadge;
 use App\Filament\Tables\Columns\NomorColumn;
 use App\Http\Requests\DataMaster\GuruRequest;
 use App\Models\Guru;
@@ -26,11 +27,13 @@ class GuruTable
             ->columns([
                 NomorColumn::make(),
                 TextColumn::make('nip')->label('NIP')->placeholder('-'),
-                TextColumn::make('nama')->label('Nama Guru'),
-                TextColumn::make('jenis_kelamin')->label('Jenis Kelamin'),
+                // wrap()/wrapHeader(): tabel Guru paling lebar; teks & judul kolom panjang turun ke
+                // baris berikutnya alih-alih membuat tabel perlu digeser horizontal.
+                TextColumn::make('nama')->label('Nama Guru')->wrap(),
+                TextColumn::make('jenis_kelamin')->label('Jenis Kelamin')->wrapHeader(),
                 TextColumn::make('alamat')->label('Alamat')->wrap(),
-                TextColumn::make('no_telepon')->label('No. Telepon'),
-                TextColumn::make('kelas.nama_kelas')->label('Kelas yang Diajar')->badge()->placeholder('-'),
+                TextColumn::make('no_telepon')->label('No. Telepon')->wrapHeader(),
+                TextColumn::make('kelas.nama_kelas')->label('Kelas yang Diajar')->formatStateUsing(LabelBadge::format(...))->html()->wrap()->wrapHeader()->placeholder('-'),
             ])
             ->emptyStateHeading('Belum ada data Guru.')
             ->recordActions([

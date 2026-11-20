@@ -3,8 +3,12 @@
 use App\Actions\Auth\AuthenticateUserAction;
 use App\Actions\Auth\LogoutUserAction;
 use App\Enums\JenisLaporan;
+use App\Enums\Tingkat;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Laporan;
+use App\Filament\Resources\Guru\Pages\ListGuru;
+use App\Filament\Resources\Kelas\Pages\ListKelas;
+use App\Filament\Resources\Siswa\Pages\ListSiswa;
 use App\Filament\Widgets\DistribusiKelasWidget;
 use App\Filament\Widgets\RingkasanSekolahWidget;
 use App\Models\Guru;
@@ -13,6 +17,7 @@ use App\Models\Siswa;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Livewire\Topbar;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Vite;
 use Livewire\Livewire;
 
@@ -176,4 +181,81 @@ describe('Dashboard Admin', function () {
             ->assertTableColumnStateSet("{$relasi}_count", 0, $kosong)
             ->assertTableColumnStateSet("{$relasi}_count", 2, $berisi);
     })->with(['siswa', 'guru']);
+
+    it('memakai pagination 10 Kelas per halaman seperti tabel lain', function (string $relasi) {
+        Kelas::factory()->count(12)->create();
+        $urutan = Kelas::query()->urutanTampilan()->get();
+
+        Livewire::test(DistribusiKelasWidget::class, ['relasi' => $relasi])
+            ->assertCanSeeTableRecords($urutan->take(10), inOrder: true)
+            ->assertCanNotSeeTableRecords($urutan->slice(10))
+            ->assertSeeText('Menampilkan 1–10 dari 12 data')
+            ->call('gotoPage', 2, 'distribusi'.ucfirst($relasi).'Page')
+            ->assertCanSeeTableRecords($urutan->slice(10))
+            ->assertSeeText('Menampilkan 11–12 dari 12 data');
+    })->with(['siswa', 'guru']);
+
+    it('memisahkan parameter halaman kedua tabel distribusi di URL', function () {
+        Kelas::factory()->count(12)->create();
+
+        $siswa = Livewire::withQueryParams(['distribusiGuruPage' => 2])->test(DistribusiKelasWidget::class, ['relasi' => 'siswa']);
+        $guru = Livewire::withQueryParams(['distribusiGuruPage' => 2])->test(DistribusiKelasWidget::class, ['relasi' => 'guru']);
+
+        $siswa->assertSeeText('Menampilkan 1–10 dari 12 data');
+        $guru->assertSeeText('Menampilkan 11–12 dari 12 data');
+    });
+});
+
+describe('Kolom Aksi', function () {
+    it('memberi judul "Aksi" pada kolom tombol di setiap tabel Data Master', function (string $halaman) {
+        $this->actingAs(User::factory()->create());
+        Siswa::factory()->create();
+        Guru::factory()->hasAttached(Kelas::factory())->create();
+
+        expect(Livewire::test($halaman)->instance()->getTable()->getRecordActionsColumnLabel())->toBe('Aksi');
+        expect(Livewire::test($halaman)->html())->toMatch('/<th[^>]*>\s*Aksi\s*<\/th>/');
+    })->with([
+        'Siswa' => ListSiswa::class,
+        'Kelas' => ListKelas::class,
+        'Guru' => ListGuru::class,
+    ]);
+
+    it('tidak menampilkan kolom Aksi pada tabel tanpa tombol (Dashboard)', function () {
+        Kelas::factory()->create();
+
+        expect(Livewire::test(DistribusiKelasWidget::class, ['relasi' => 'siswa'])->html())->not->toMatch('/<th[^>]*>\s*Aksi\s*<\/th>/');
+    });
+});
+
+describe('Badge Tingkat & Kelas', function () {
+    /** Kelas CSS badge Laporan (x-atoms.label-badge); harus sama persis di panel Admin. */
+    function kelasBadgeLaporan(): string
+    {
+        preg_match('/<span class="([^"]+)">\s*X\s*<\/span>/', Blade::render('<x-atoms.tingkat-badge :tingkat="$t" />', ['t' => Tingkat::X]), $cocok);
+
+        return $cocok[1];
+    }
+
+    it('memakai badge yang sama dengan Laporan, bukan badge berwarna Filament', function (string $halaman, array $param, string $teks) {
+        $this->actingAs(User::factory()->create());
+        $kelas = Kelas::factory()->create(['nama_kelas' => 'X IPA 9', 'tingkat' => Tingkat::X]);
+        Guru::factory()->hasAttached($kelas)->create();
+
+        $html = Livewire::test($halaman, $param)->html();
+
+        expect($html)->toContain('<span class="'.kelasBadgeLaporan().'">')
+            ->and($html)->toMatch('/<span class="'.preg_quote(kelasBadgeLaporan(), '/').'">\s*'.preg_quote($teks, '/').'\s*<\/span>/')
+            ->and($html)->not->toContain('fi-badge');
+    })->with([
+        'Tabel Kelas (Tingkat)' => [ListKelas::class, [], 'X'],
+        'Dashboard (Tingkat)' => [DistribusiKelasWidget::class, ['relasi' => 'siswa'], 'X'],
+        'Tabel Guru (Kelas)' => [ListGuru::class, [], 'X IPA 9'],
+    ]);
+
+    it('meng-escape nama Kelas di dalam badge', function () {
+        $this->actingAs(User::factory()->create());
+        Guru::factory()->hasAttached(Kelas::factory()->state(['nama_kelas' => '<b>XSS</b>']))->create();
+
+        expect(Livewire::test(ListGuru::class)->html())->toContain('&lt;b&gt;XSS&lt;/b&gt;')->not->toContain('<b>XSS</b>');
+    });
 });

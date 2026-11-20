@@ -17,6 +17,29 @@
 }
 
 /*
+ * Kolom Aksi tabel: tombol Detail/Edit/Hapus/Pulihkan disusun atas-bawah, bukan berjajar ke
+ * samping, agar kolom ini sempit dan tabel lebar (mis. Guru) tidak perlu digeser horizontal.
+ * Hanya sel baris tabel (.fi-ta-cell); aksi di header tabel tidak terpengaruh.
+ */
+.fi-ta-cell .fi-ta-actions {
+    @apply flex-col flex-nowrap items-start justify-center gap-1.5;
+}
+
+/*
+ * Kolom Aksi rapat di ujung kanan: selebar tombolnya saja (width 1% = sesempit isinya), sisa
+ * ruang tabel diberikan ke kolom data. Judul "Aksi" (Filament: selalu rata kanan) dibuat rata
+ * kiri agar tepat di atas tombol. Hanya tabel yang punya tombol aksi (bukan tabel Dashboard,
+ * yang kolom terakhirnya angka rata kanan).
+ */
+.fi-ta-table td.fi-ta-cell:has(> .fi-ta-actions) {
+    width: 1%;
+}
+
+.fi-ta-table:has(td.fi-ta-cell > .fi-ta-actions) > thead > tr > th:last-child {
+    @apply text-start;
+}
+
+/*
  * Error state tabel (PRD 16.3), diset resources/js/components/livewire-table-error.ts:
  * data lama & pagination disembunyikan agar tidak dikira valid; judul tabel tetap terlihat.
  */

@@ -48,7 +48,10 @@ class AdminPanelProvider extends PanelProvider
         // lang/vendor/filament-actions/id dan lang/vendor/filament-panels/id.
 
         // 10 data per halaman tanpa pilihan jumlah (PRD 15.2); satu opsi = pemilih disembunyikan.
-        Table::configureUsing(fn (Table $table): Table => $table->paginated([10]));
+        // Kolom tombol Detail/Edit/Hapus/Pulihkan diberi judul "Aksi" (bawaan Filament: kosong).
+        Table::configureUsing(fn (Table $table): Table => $table
+            ->paginated([10])
+            ->recordActionsColumnLabel('Aksi'));
 
         // Konfirmasi yang menjelaskan akibatnya, bukan "Apakah Anda yakin ingin melakukan ini?" (PRD 14.3–14.4).
         DeleteAction::configureUsing(fn (DeleteAction $action): DeleteAction => $action
