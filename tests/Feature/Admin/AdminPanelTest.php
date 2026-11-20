@@ -6,9 +6,11 @@ use App\Enums\JenisLaporan;
 use App\Enums\Tingkat;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Laporan;
+use App\Filament\Resources\Guru\GuruResource;
 use App\Filament\Resources\Guru\Pages\ListGuru;
 use App\Filament\Resources\Kelas\Pages\ListKelas;
 use App\Filament\Resources\Siswa\Pages\ListSiswa;
+use App\Filament\Resources\Siswa\SiswaResource;
 use App\Filament\Widgets\DistribusiKelasWidget;
 use App\Filament\Widgets\RingkasanSekolahWidget;
 use App\Models\Guru;
@@ -18,6 +20,7 @@ use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Livewire\Topbar;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Vite;
 use Livewire\Livewire;
 
@@ -240,6 +243,7 @@ describe('Badge Tingkat & Kelas', function () {
         $this->actingAs(User::factory()->create());
         $kelas = Kelas::factory()->create(['nama_kelas' => 'X IPA 9', 'tingkat' => Tingkat::X]);
         Guru::factory()->hasAttached($kelas)->create();
+        Siswa::factory()->for($kelas)->create();
 
         $html = Livewire::test($halaman, $param)->html();
 
@@ -250,12 +254,57 @@ describe('Badge Tingkat & Kelas', function () {
         'Tabel Kelas (Tingkat)' => [ListKelas::class, [], 'X'],
         'Dashboard (Tingkat)' => [DistribusiKelasWidget::class, ['relasi' => 'siswa'], 'X'],
         'Tabel Guru (Kelas)' => [ListGuru::class, [], 'X IPA 9'],
+        'Tabel Siswa (Kelas)' => [ListSiswa::class, [], 'X IPA 9'],
     ]);
 
-    it('meng-escape nama Kelas di dalam badge', function () {
+    it('menampilkan beberapa Kelas Guru sebagai badge berjajar tanpa koma', function () {
         $this->actingAs(User::factory()->create());
-        Guru::factory()->hasAttached(Kelas::factory()->state(['nama_kelas' => '<b>XSS</b>']))->create();
+        $a = Kelas::factory()->create(['nama_kelas' => 'X IPA 2', 'tingkat' => Tingkat::X]);
+        $b = Kelas::factory()->create(['nama_kelas' => 'XI IPS 1', 'tingkat' => Tingkat::XI]);
+        $guru = Guru::factory()->hasAttached([$b, $a])->create();
+        $badge = '<span class="'.kelasBadgeLaporan().'">';
 
-        expect(Livewire::test(ListGuru::class)->html())->toContain('&lt;b&gt;XSS&lt;/b&gt;')->not->toContain('<b>XSS</b>');
+        foreach ([Livewire::test(ListGuru::class)->html(), $this->get(GuruResource::getUrl('view', ['record' => $guru]))->getContent()] as $html) {
+            // Urut Tingkat (X → XI), keduanya badge, tidak dipisah koma.
+            expect($html)->toMatch('/'.preg_quote($badge, '/').'\s*X IPA 2\s*<\/span>\s*'.preg_quote($badge, '/').'\s*XI IPS 1\s*<\/span>/');
+        }
     });
+
+    it('menampilkan badge Kelas di halaman detail Siswa', function () {
+        $this->actingAs(User::factory()->create());
+        $siswa = Siswa::factory()->for(Kelas::factory()->state(['nama_kelas' => 'XII IPA 3']))->create();
+
+        $this->get(SiswaResource::getUrl('view', ['record' => $siswa]))
+            ->assertOk()
+            ->assertSee('<span class="'.kelasBadgeLaporan().'">', escape: false)
+            ->assertSeeText('XII IPA 3');
+    });
+
+    it('tidak menambah query per baris di tabel Guru (relasi Kelas dimuat sekaligus)', function () {
+        $this->actingAs(User::factory()->create());
+        $kelas = Kelas::factory()->count(3)->create();
+
+        $hitung = function () {
+            DB::flushQueryLog();
+            DB::enableQueryLog();
+            Livewire::test(ListGuru::class);
+
+            return count(DB::getQueryLog());
+        };
+
+        Guru::factory()->count(2)->hasAttached($kelas)->create();
+        $duaGuru = $hitung();
+        Guru::factory()->count(8)->hasAttached($kelas)->create();
+
+        expect($hitung())->toBe($duaGuru);
+    });
+
+    it('meng-escape nama Kelas di dalam badge', function (string $halaman) {
+        $this->actingAs(User::factory()->create());
+        $kelas = Kelas::factory()->create(['nama_kelas' => '<b>XSS</b>']);
+        Guru::factory()->hasAttached($kelas)->create();
+        Siswa::factory()->for($kelas)->create();
+
+        expect(Livewire::test($halaman)->html())->toContain('&lt;b&gt;XSS&lt;/b&gt;')->not->toContain('<b>XSS</b>');
+    })->with(['Guru' => ListGuru::class, 'Siswa' => ListSiswa::class]);
 });

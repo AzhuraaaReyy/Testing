@@ -3,8 +3,10 @@
 namespace App\Filament\Resources\Guru\Schemas;
 
 use App\Filament\LabelBadge;
+use App\Models\Guru;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
+use Illuminate\Support\HtmlString;
 
 /**
  * Detail Guru, read-only pada halaman terpisah (PRD 7.5).
@@ -19,7 +21,11 @@ class GuruInfolist
                 TextEntry::make('nama')->label('Nama Guru'),
                 TextEntry::make('jenis_kelamin')->label('Jenis Kelamin'),
                 TextEntry::make('no_telepon')->label('No. Telepon'),
-                TextEntry::make('kelas.nama_kelas')->label('Kelas yang Diajar')->formatStateUsing(LabelBadge::format(...))->html()->placeholder('-')->columnSpanFull(),
+                TextEntry::make('kelas.nama_kelas')
+                    ->label('Kelas yang Diajar')
+                    ->state(fn (Guru $record): ?HtmlString => LabelBadge::daftar($record->kelas->pluck('nama_kelas')))
+                    ->placeholder('-')
+                    ->columnSpanFull(),
                 TextEntry::make('alamat')->label('Alamat')->columnSpanFull(),
                 TextEntry::make('akun.email')->label('Email Akun Portal')->placeholder('Belum memiliki akun'),
             ]);

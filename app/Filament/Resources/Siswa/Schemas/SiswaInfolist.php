@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Siswa\Schemas;
 
+use App\Filament\LabelBadge;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 
@@ -17,7 +18,7 @@ class SiswaInfolist
                 TextEntry::make('nis')->label('NIS'),
                 TextEntry::make('nama')->label('Nama Siswa'),
                 TextEntry::make('jenis_kelamin')->label('Jenis Kelamin'),
-                TextEntry::make('kelas.nama_kelas')->label('Kelas')->placeholder('-'),
+                TextEntry::make('kelas.nama_kelas')->label('Kelas')->formatStateUsing(LabelBadge::format(...))->html()->placeholder('-'),
                 TextEntry::make('alamat')->label('Alamat')->columnSpanFull(),
                 TextEntry::make('akun.email')->label('Email Akun Portal')->placeholder('Belum memiliki akun'),
             ]);

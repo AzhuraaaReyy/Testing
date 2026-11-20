@@ -14,6 +14,7 @@ use Filament\Actions\RestoreAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\HtmlString;
 
 /**
  * Tabel Guru (PRD 7.3): urut Nama Guru A–Z; Guru dengan banyak Kelas tetap satu baris.
@@ -33,7 +34,13 @@ class GuruTable
                 TextColumn::make('jenis_kelamin')->label('Jenis Kelamin')->wrapHeader(),
                 TextColumn::make('alamat')->label('Alamat')->wrap(),
                 TextColumn::make('no_telepon')->label('No. Telepon')->wrapHeader(),
-                TextColumn::make('kelas.nama_kelas')->label('Kelas yang Diajar')->formatStateUsing(LabelBadge::format(...))->html()->wrap()->wrapHeader()->placeholder('-'),
+                // Badge Kelas berjajar tanpa koma (LabelBadge::daftar), sama dengan kolom Kelas di Siswa.
+                TextColumn::make('kelas.nama_kelas')
+                    ->label('Kelas yang Diajar')
+                    ->state(fn (Guru $record): ?HtmlString => LabelBadge::daftar($record->kelas->pluck('nama_kelas')))
+                    ->wrap()
+                    ->wrapHeader()
+                    ->placeholder('-'),
             ])
             ->emptyStateHeading('Belum ada data Guru.')
             ->recordActions([

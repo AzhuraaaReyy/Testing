@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Siswa\Tables;
 
 use App\Filament\Forms\AturanFormRequest;
 use App\Filament\Forms\Components\KelasAktifSelect;
+use App\Filament\LabelBadge;
 use App\Filament\Tables\Columns\NomorColumn;
 use App\Http\Requests\DataMaster\SiswaRequest;
 use App\Models\Siswa;
@@ -29,7 +30,8 @@ class SiswaTable
                 TextColumn::make('nama')->label('Nama Siswa'),
                 TextColumn::make('jenis_kelamin')->label('Jenis Kelamin'),
                 TextColumn::make('alamat')->label('Alamat')->wrap(),
-                TextColumn::make('kelas.nama_kelas')->label('Kelas')->placeholder('-'),
+                // Badge Kelas sama dengan kolom Kelas yang Diajar di Guru dan dengan Laporan.
+                TextColumn::make('kelas.nama_kelas')->label('Kelas')->formatStateUsing(LabelBadge::format(...))->html()->placeholder('-'),
             ])
             ->emptyStateHeading('Belum ada data Siswa.')
             ->recordActions([

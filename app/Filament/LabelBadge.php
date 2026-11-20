@@ -21,6 +21,26 @@ final class LabelBadge
         return new HtmlString(Blade::render('<x-atoms.label-badge>{{ $teks }}</x-atoms.label-badge>', ['teks' => $teks]));
     }
 
+    /**
+     * Beberapa badge berdampingan (mis. Kelas yang diajar Guru) sebagai SATU nilai HTML.
+     * Filament menggabungkan nilai jamak non-badge dengan koma (", "); dengan satu nilai,
+     * badge tampil berjajar tanpa koma dan turun baris bila tidak muat.
+     *
+     * @param  iterable<string>  $daftar
+     */
+    public static function daftar(iterable $daftar): ?HtmlString
+    {
+        $badge = [];
+
+        foreach ($daftar as $teks) {
+            $badge[] = self::html($teks)->toHtml();
+        }
+
+        return $badge === []
+            ? null
+            : new HtmlString('<span class="inline-flex flex-wrap gap-1.5">'.implode('', $badge).'</span>');
+    }
+
     /** Untuk formatStateUsing(): enum ber-label (mis. Tingkat) atau teks biasa (mis. nama Kelas). */
     public static function format(HasLabel|string|null $state): ?HtmlString
     {
