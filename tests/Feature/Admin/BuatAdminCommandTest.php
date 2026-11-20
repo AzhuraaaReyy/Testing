@@ -4,6 +4,8 @@ use App\Enums\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
 
 it('membuat akun Admin yang bisa login ke panel', function () {
     $this->artisan('sekolah:buat-admin', ['--nama' => 'Kepala TU', '--email' => 'tu@sekolah.sch.id'])
@@ -47,11 +49,37 @@ it('menolak data tidak valid tanpa membuat akun', function (array $opsi, string 
     'konfirmasi beda' => [['--nama' => 'X', '--email' => 'b@sekolah.sch.id'], 'rahasia123', 'rahasia999', 'Konfirmasi Password tidak cocok.'],
 ]);
 
-it('menolak password yang pernah bocor di production (SEC-05)', function () {
-    $this->app['env'] = 'production';
-    // Have I Been Pwned (k-anonymity): hanya 5 karakter awal SHA-1 yang dikirim; jawabannya daftar sisa hash.
+/** Jawaban palsu Have I Been Pwned: "rahasia123" tercatat pernah bocor. */
+function passwordBocor(): string
+{
+    // k-anonymity: hanya 5 karakter awal SHA-1 yang dikirim; jawabannya daftar sisa hash.
     $sha1 = strtoupper(sha1('rahasia123'));
     Http::fake(['api.pwnedpasswords.com/range/'.substr($sha1, 0, 5) => Http::response(substr($sha1, 5).':12345')]);
+
+    return $sha1;
+}
+
+/*
+| Dua test di bawah sengaja tidak menjalankan perintah artisan dengan APP_ENV=production:
+| Laravel Prompts hanya memakai prompt yang dapat di-mock (expectsQuestion) bila environment
+| "testing" atau OS Windows. Di Linux (CI) dengan env production, prompt interaktif asli dipakai
+| dan gagal karena tidak ada terminal (NonInteractiveValidationException "Required.").
+*/
+
+it('memakai pengecekan password bocor di production (SEC-05)', function () {
+    $sha1 = passwordBocor();
+    $this->app['env'] = 'production';
+
+    $validator = Validator::make(['password' => 'rahasia123'], ['password' => Password::defaults()]);
+
+    expect($validator->errors()->first('password'))->toContain('pernah bocor dalam kebocoran data');
+    Http::assertSent(fn ($request): bool => ! str_contains($request->url(), 'rahasia123') && ! str_contains($request->url(), $sha1));
+});
+
+it('menolak membuat Admin dengan password yang pernah bocor', function () {
+    passwordBocor();
+    // Aturan production (AppServiceProvider) tanpa mengubah environment; lihat catatan di atas.
+    Password::defaults(fn (): Password => Password::min(8)->letters()->numbers()->uncompromised());
 
     $this->artisan('sekolah:buat-admin', ['--nama' => 'X', '--email' => 'b@sekolah.sch.id'])
         ->expectsQuestion('Password (min. 8 karakter, memuat huruf dan angka)', 'rahasia123')
@@ -59,7 +87,6 @@ it('menolak password yang pernah bocor di production (SEC-05)', function () {
         ->expectsOutputToContain('pernah bocor dalam kebocoran data')
         ->assertFailed();
 
-    Http::assertSent(fn ($request): bool => ! str_contains($request->url(), 'rahasia123') && ! str_contains($request->url(), $sha1));
     expect(User::query()->count())->toBe(0);
 });
 

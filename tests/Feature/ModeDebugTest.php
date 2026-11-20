@@ -30,7 +30,10 @@ it('menyembunyikan detail error di halaman web saat debug mati', function () {
         ->assertSeeText('Terjadi kesalahan')
         ->assertDontSee('rahasia-internal')
         ->assertDontSee('RuntimeException')
-        ->assertDontSee(base_path(), escape: false);
+        // Stack trace: namespace framework selalu ada di halaman debug, tidak pernah di halaman error
+        // Indonesia. Bukan base_path(): path ditampilkan ter-escape (Windows), dan bila proyek berada
+        // di "/app" (container) teks itu juga cocok dengan URL aset "/build/assets/app-….css".
+        ->assertDontSee('Illuminate', escape: false);
 });
 
 it('menampilkan detail error hanya saat debug aktif (pengembangan)', function () {
