@@ -83,6 +83,9 @@ class AdminPanelProvider extends PanelProvider
             ->darkMode(false)
             // Sidebar desktop terbuka default & dapat diciutkan jadi ikon (PRD 17.2).
             ->sidebarCollapsibleOnDesktop()
+            // Pencarian di luar ruang lingkup (PRD 2.4 poin 5–6). Tanpa ini Filament mengaktifkan
+            // pencarian global otomatis karena Resource memakai $recordTitleAttribute.
+            ->globalSearch(false)
             ->navigationGroups(['Data Master', Role::Admin->labelGrupLaporan()])
             // Dropdown akun: Nama, Email, Logout dengan konfirmasi (PRD 4.7, 17.1).
             ->renderHook(PanelsRenderHook::USER_MENU_PROFILE_AFTER, fn (): View => view('filament.user-menu-email'))

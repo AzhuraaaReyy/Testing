@@ -18,9 +18,7 @@
             <x-organisms.laporan-table :jenis="$this->jenis" :kelas="$kelas" :caption="$this->jenis->judul()" />
 
             @if ($kelas->total() > 0)
-                <div class="border-t border-line px-5 py-3.5">
-                    <x-filament::pagination :paginator="$kelas" />
-                </div>
+                <x-filament::pagination :paginator="$kelas" />
             @endif
         </div>
     </x-organisms.table-card>

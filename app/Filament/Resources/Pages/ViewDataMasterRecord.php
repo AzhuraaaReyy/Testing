@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Pages;
 
 use App\Enums\Icon;
+use App\Filament\Resources\Pages\Concerns\SubjudulDataMaster;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
@@ -13,6 +14,13 @@ use Illuminate\Database\Eloquent\Model;
  */
 abstract class ViewDataMasterRecord extends ViewRecord
 {
+    use SubjudulDataMaster;
+
+    protected function jenisHalaman(): string
+    {
+        return 'view';
+    }
+
     protected function getHeaderActions(): array
     {
         return [

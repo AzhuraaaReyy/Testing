@@ -3,6 +3,12 @@
     $control = 'inline-flex min-h-10 min-w-10 items-center justify-center rounded-md text-sm font-semibold tabular-nums transition-colors duration-150';
     $idle = 'cursor-pointer text-ink hover:bg-subtle';
     $disabled = 'cursor-not-allowed text-ink-muted opacity-45';
+
+    // Mode Livewire: klik ditangani komponen (href tetap ada sebagai fallback tanpa JavaScript).
+    // Mode biasa: data-page-link diperkaya resources/js/components/table-region.ts.
+    $perilaku = fn (string $metode, ?int $nomor = null): string => $livewire
+        ? 'wire:click.prevent="'.e($aksiLivewire($metode, $nomor)).'" wire:loading.attr="aria-disabled"'
+        : 'data-page-link';
 @endphp
 
 <nav
@@ -20,7 +26,7 @@
                         <span class="max-sm:sr-only">Sebelumnya</span>
                     </span>
                 @else
-                    <a href="{{ $paginator->previousPageUrl() }}" rel="prev" data-page-link class="{{ $control }} {{ $idle }} gap-1 px-2.5">
+                    <a href="{{ $paginator->previousPageUrl() }}" rel="prev" {!! $perilaku('previousPage') !!} class="{{ $control }} {{ $idle }} gap-1 px-2.5">
                         <x-atoms.icon :icon="\App\Enums\Icon::ChevronLeft" class="size-4" />
                         <span class="max-sm:sr-only">Sebelumnya</span>
                     </a>
@@ -36,7 +42,7 @@
                             <span class="sr-only">Halaman </span>{{ $nomor }}
                         </span>
                     @else
-                        <a href="{{ $paginator->url($nomor) }}" data-page-link class="{{ $control }} {{ $idle }}">
+                        <a href="{{ $paginator->url($nomor) }}" {!! $perilaku('gotoPage', $nomor) !!} class="{{ $control }} {{ $idle }}">
                             <span class="sr-only">Halaman </span>{{ $nomor }}
                         </a>
                     @endif
@@ -45,7 +51,7 @@
 
             <li>
                 @if ($paginator->hasMorePages())
-                    <a href="{{ $paginator->nextPageUrl() }}" rel="next" data-page-link class="{{ $control }} {{ $idle }} gap-1 px-2.5">
+                    <a href="{{ $paginator->nextPageUrl() }}" rel="next" {!! $perilaku('nextPage') !!} class="{{ $control }} {{ $idle }} gap-1 px-2.5">
                         <span class="max-sm:sr-only">Berikutnya</span>
                         <x-atoms.icon :icon="\App\Enums\Icon::ChevronRight" class="size-4" />
                     </a>

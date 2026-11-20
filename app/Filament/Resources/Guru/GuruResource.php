@@ -30,6 +30,8 @@ class GuruResource extends DataMasterResource
 
     protected static Icon $ikon = Icon::Presentation;
 
+    protected static string $deskripsi = 'Kelola data Guru beserta Kelas yang diajar. Seorang Guru dapat mengajar lebih dari satu Kelas.';
+
     protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema

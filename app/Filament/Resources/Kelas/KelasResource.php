@@ -30,6 +30,8 @@ class KelasResource extends DataMasterResource
 
     protected static Icon $ikon = Icon::Building;
 
+    protected static string $deskripsi = 'Kelola data Kelas berdasarkan Tingkat dan Jurusan. Kelas yang masih memiliki Siswa atau Guru aktif tidak dapat dihapus.';
+
     protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema

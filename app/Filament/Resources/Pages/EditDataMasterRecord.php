@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Pages;
 
 use App\Filament\Resources\Pages\Concerns\BatalDenganKonfirmasi;
+use App\Filament\Resources\Pages\Concerns\SubjudulDataMaster;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 
@@ -13,6 +14,12 @@ use Filament\Resources\Pages\EditRecord;
 abstract class EditDataMasterRecord extends EditRecord
 {
     use BatalDenganKonfirmasi;
+    use SubjudulDataMaster;
+
+    protected function jenisHalaman(): string
+    {
+        return 'edit';
+    }
 
     protected function getHeaderActions(): array
     {

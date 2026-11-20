@@ -2,12 +2,14 @@
 
 namespace App\Filament\Resources\Pages;
 
+use App\Filament\Resources\Pages\Concerns\SubjudulDataMaster;
 use App\Models\Guru;
 use App\Models\Kelas;
 use App\Models\Siswa;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Tables\Table;
 use Illuminate\Contracts\Pagination\CursorPaginator;
 use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -23,6 +25,14 @@ use Illuminate\Pagination\LengthAwarePaginator;
  */
 abstract class ListDataMasterRecords extends ListRecords
 {
+    use SubjudulDataMaster;
+
+    /** Subjudul mengikuti tab yang sedang dibuka (Aktif / Trash). */
+    protected function jenisHalaman(): string
+    {
+        return $this->activeTab === 'trash' ? 'trash' : 'index';
+    }
+
     public function mount(): void
     {
         parent::mount();
@@ -34,6 +44,16 @@ abstract class ListDataMasterRecords extends ListRecords
         if (! request()->query->has('page') && is_int($page) && $page > 1) {
             $this->paginators['page'] = $page;
         }
+    }
+
+    /**
+     * Judul tabel terpisah dari header kolom dan tetap terlihat di semua state (PRD 5.3, 15.1, 14.9).
+     */
+    public function table(Table $table): Table
+    {
+        $label = static::getResource()::getModelLabel();
+
+        return $table->heading(fn (): string => $this->activeTab === 'trash' ? "Trash {$label}" : "Daftar {$label}");
     }
 
     protected function getHeaderActions(): array

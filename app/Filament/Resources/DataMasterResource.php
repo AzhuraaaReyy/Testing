@@ -21,9 +21,31 @@ abstract class DataMasterResource extends Resource
     /** Ikon menu dari set ikon aplikasi (sama dengan kartu ringkasan Dashboard). */
     protected static Icon $ikon;
 
+    /** Satu kalimat isi menu, tampil sebagai subjudul halaman daftar. */
+    protected static string $deskripsi;
+
     public static function getNavigationIcon(): Heroicon
     {
         return static::$ikon->heroicon();
+    }
+
+    /**
+     * Subjudul di bawah judul tiap halaman Data Master. Disusun dari $deskripsi & label model
+     * sehingga tiap Resource cukup menulis satu kalimat.
+     *
+     * @param  'index'|'trash'|'create'|'edit'|'view'  $halaman
+     */
+    public static function getSubjudul(string $halaman): string
+    {
+        $label = static::getModelLabel();
+
+        return match ($halaman) {
+            'index' => static::$deskripsi,
+            'trash' => "Data {$label} yang telah dihapus. Pulihkan untuk mengaktifkannya kembali.",
+            'create' => "Lengkapi data {$label} baru. Kolom bertanda * wajib diisi.",
+            'edit' => "Perbarui data {$label}. Kolom bertanda * wajib diisi.",
+            'view' => "Informasi lengkap data {$label}.",
+        };
     }
 
     /**

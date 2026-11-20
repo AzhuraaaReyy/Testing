@@ -5,11 +5,18 @@ namespace App\View\Components\Molecules;
 use App\Support\Format;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\View;
+use Illuminate\Pagination\AbstractPaginator;
 use Illuminate\View\Component;
 
 /**
  * Pagination standar seluruh tabel (PRD 15.2–15.4): informasi jumlah data di kiri,
- * kontrol nomor halaman dengan ellipsis di kanan.
+ * kontrol nomor halaman dengan ellipsis di kanan; Sebelumnya/Berikutnya tetap terlihat
+ * (redup) saat tidak dapat dipakai; seluruh elemen tetap tampil di mobile.
+ *
+ * Dua mode, satu tampilan:
+ * - Tautan biasa (portal): diperkaya resources/js/components/table-region.ts.
+ * - Livewire (panel Admin, :livewire="true"): klik memanggil gotoPage()/previousPage()/nextPage()
+ *   komponen Livewire. Dipakai lewat override resources/views/vendor/filament/components/pagination.
  */
 final class Pagination extends Component
 {
@@ -27,8 +34,21 @@ final class Pagination extends Component
         public LengthAwarePaginator $paginator,
         public string $satuan = 'data',
         int $sisi = 1,
+        public bool $livewire = false,
     ) {
         $this->halaman = self::jendela($paginator->currentPage(), $paginator->lastPage(), $sisi);
+    }
+
+    /**
+     * Ekspresi wire:click untuk mode Livewire, mis. "gotoPage(3, 'page')".
+     */
+    public function aksiLivewire(string $metode, ?int $nomor = null): string
+    {
+        $namaHalaman = $this->paginator instanceof AbstractPaginator ? $this->paginator->getPageName() : 'page';
+
+        return $nomor === null
+            ? "{$metode}('{$namaHalaman}')"
+            : "{$metode}({$nomor}, '{$namaHalaman}')";
     }
 
     /**

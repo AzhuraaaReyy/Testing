@@ -30,6 +30,8 @@ class SiswaResource extends DataMasterResource
 
     protected static Icon $ikon = Icon::Users;
 
+    protected static string $deskripsi = 'Kelola data Siswa beserta Kelasnya. Setiap Siswa aktif terdaftar di satu Kelas.';
+
     protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
