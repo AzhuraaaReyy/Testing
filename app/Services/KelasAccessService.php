@@ -18,8 +18,8 @@ final class KelasAccessService
     {
         return match ($user->role) {
             Role::Admin => null,
-            Role::Siswa => array_values(array_filter([$user->siswa?->kelas_id])),
-            Role::Guru => $user->guru?->kelas()->pluck('kelas.id')->map(fn ($id): int => (int) $id)->values()->all() ?? [],
+            Role::Siswa => $user->siswa?->kelas_id !== null ? [$user->siswa->kelas_id] : [],
+            Role::Guru => array_values($user->guru?->kelas()->pluck('kelas.id')->map(fn (mixed $id): int => (int) $id)->all() ?? []),
         };
     }
 }

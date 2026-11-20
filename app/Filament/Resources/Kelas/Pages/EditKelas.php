@@ -3,17 +3,9 @@
 namespace App\Filament\Resources\Kelas\Pages;
 
 use App\Filament\Resources\Kelas\KelasResource;
-use Filament\Actions\ViewAction;
-use Filament\Resources\Pages\EditRecord;
+use App\Filament\Resources\Pages\EditDataMasterRecord;
 
-class EditKelas extends EditRecord
+class EditKelas extends EditDataMasterRecord
 {
     protected static string $resource = KelasResource::class;
-
-    protected function getHeaderActions(): array
-    {
-        return [
-            ViewAction::make(),
-        ];
-    }
 }

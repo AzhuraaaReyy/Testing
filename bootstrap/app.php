@@ -21,7 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
             : route('filament.admin.auth.login'));
 
         // Pengguna yang sudah login dan membuka /login diarahkan ke beranda perannya.
-        $middleware->redirectUsersTo(fn (Request $request) => route($request->user()->role->homeRoute()));
+        $middleware->redirectUsersTo(fn (Request $request) => route($request->user()?->role->homeRoute() ?? 'login'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Tamu ditolak di halaman terlindungi (portal maupun panel Admin): bila sebelumnya pernah

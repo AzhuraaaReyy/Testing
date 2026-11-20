@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources\Siswa\Tables;
 
+use App\Filament\Forms\AturanFormRequest;
 use App\Filament\Forms\Components\KelasAktifSelect;
+use App\Http\Requests\DataMaster\SiswaRequest;
 use App\Models\Siswa;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -36,7 +38,7 @@ class SiswaTable
                 // Siswa tidak boleh aktif kembali tanpa Kelas (PRD 5.7).
                 RestoreAction::make()
                     ->modalDescription('Pilih Kelas aktif untuk Siswa ini sebelum dipulihkan.')
-                    ->schema([KelasAktifSelect::make('kelas_id')])
+                    ->schema(AturanFormRequest::terapkan([KelasAktifSelect::make('kelas_id')], fn (): array => SiswaRequest::aturanPemulihan()))
                     ->using(fn (Siswa $record, array $data): bool => $record->pulihkanKeKelas((int) $data['kelas_id'])),
             ]);
     }

@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\Siswa\Pages;
 
+use App\Filament\Resources\Pages\CreateDataMasterRecord;
 use App\Filament\Resources\Siswa\SiswaResource;
-use Filament\Resources\Pages\CreateRecord;
 
-class CreateSiswa extends CreateRecord
+class CreateSiswa extends CreateDataMasterRecord
 {
     protected static string $resource = SiswaResource::class;
 }

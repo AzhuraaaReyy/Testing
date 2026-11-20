@@ -48,7 +48,7 @@ class Laporan extends Page
                 ->icon($jenis->icon()->heroicon())
                 ->url(fn (): string => static::getUrl(['jenis' => $jenis]))
                 ->activeWhen(fn (): bool => original_request()->routeIs(static::getRouteName())
-                    && static::jenisDariRute() === $jenis),
+                    && self::jenisDariRute() === $jenis),
             JenisLaporan::cases(),
         );
     }
@@ -74,7 +74,9 @@ class Laporan extends Page
     }
 
     /**
-     * @return array<string, string>
+     * Tanpa tautan: grup Laporan bukan halaman tersendiri.
+     *
+     * @return list<string>
      */
     public function getBreadcrumbs(): array
     {

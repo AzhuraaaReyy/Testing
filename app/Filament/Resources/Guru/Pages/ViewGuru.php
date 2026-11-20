@@ -3,17 +3,9 @@
 namespace App\Filament\Resources\Guru\Pages;
 
 use App\Filament\Resources\Guru\GuruResource;
-use Filament\Actions\EditAction;
-use Filament\Resources\Pages\ViewRecord;
+use App\Filament\Resources\Pages\ViewDataMasterRecord;
 
-class ViewGuru extends ViewRecord
+class ViewGuru extends ViewDataMasterRecord
 {
     protected static string $resource = GuruResource::class;
-
-    protected function getHeaderActions(): array
-    {
-        return [
-            EditAction::make(),
-        ];
-    }
 }

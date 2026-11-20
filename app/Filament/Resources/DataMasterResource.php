@@ -47,6 +47,8 @@ abstract class DataMasterResource extends Resource
      */
     public static function canEdit(Model $record): bool
     {
-        return ! $record->trashed() && parent::canEdit($record);
+        $diTrash = method_exists($record, 'trashed') && $record->trashed();
+
+        return ! $diTrash && parent::canEdit($record);
     }
 }

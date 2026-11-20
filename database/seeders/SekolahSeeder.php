@@ -59,7 +59,7 @@ class SekolahSeeder extends Seeder
         ]);
 
         // Data di Trash; relasi Kelas dilepas otomatis oleh model saat delete (PRD 5.7, 7.6).
-        Siswa::factory()->count(3)->for($kelas->first())->create()->each->delete();
+        Siswa::factory()->count(3)->for($kelas->firstOrFail())->create()->each->delete();
 
         Guru::factory()->create()->delete();
         Kelas::factory()->create(['nama_kelas' => 'X Arsip', 'tingkat' => Tingkat::X, 'jurusan' => 'IPA'])->delete();

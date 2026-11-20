@@ -3,6 +3,7 @@
 namespace App\Enums;
 
 use Filament\Support\Contracts\HasLabel;
+use LogicException;
 
 /**
  * Tingkat Kelas (PRD 6.2). Urutan case = urutan tampilan X → XI → XII.
@@ -23,19 +24,32 @@ enum Tingkat: string implements HasLabel
      */
     public function urutan(): int
     {
-        return array_search($this, self::cases(), true);
+        foreach (self::cases() as $posisi => $tingkat) {
+            if ($tingkat === $this) {
+                return $posisi;
+            }
+        }
+
+        throw new LogicException("Tingkat [{$this->value}] tidak ada di daftar case.");
     }
 
     /**
-     * Ekspresi SQL portabel (MySQL/SQLite) untuk mengurutkan kolom tingkat sesuai urutan enum,
-     * bukan urutan alfabet ("XI" < "XII" < "X" bila diurutkan sebagai teks).
+     * Binding untuk CASE pengurutan di SQL (lihat scope Kelas::urutanTampilan): pasangan
+     * nilai => posisi per Tingkat, lalu posisi untuk nilai tak dikenal (ELSE).
+     *
+     * @return list<string|int>
      */
-    public static function orderBySql(string $column = 'tingkat'): string
+    public static function bindingUrutan(): array
     {
-        $branches = collect(self::cases())
-            ->map(fn (self $tingkat): string => "WHEN '{$tingkat->value}' THEN {$tingkat->urutan()}")
-            ->implode(' ');
+        $bindings = [];
 
-        return "CASE {$column} {$branches} ELSE ".count(self::cases()).' END';
+        foreach (self::cases() as $tingkat) {
+            $bindings[] = $tingkat->value;
+            $bindings[] = $tingkat->urutan();
+        }
+
+        $bindings[] = count(self::cases());
+
+        return $bindings;
     }
 }

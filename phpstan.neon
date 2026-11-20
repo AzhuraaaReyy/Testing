@@ -1,0 +1,14 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app
+        - database
+        - routes
+        - bootstrap/app.php
+
+    # Level 8: termasuk pemeriksaan null. Tanpa baseline: temuan baru wajib diperbaiki, bukan diabaikan.
+    level: 8
+
+    tmpDir: storage/framework/phpstan

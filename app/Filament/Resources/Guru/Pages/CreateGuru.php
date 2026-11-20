@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\Guru\Pages;
 
 use App\Filament\Resources\Guru\GuruResource;
-use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Resources\Pages\CreateDataMasterRecord;
 
-class CreateGuru extends CreateRecord
+class CreateGuru extends CreateDataMasterRecord
 {
     protected static string $resource = GuruResource::class;
 }

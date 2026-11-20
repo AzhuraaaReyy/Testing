@@ -3,13 +3,14 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
+/**
+ * Sengaja TANPA WithoutModelEvents: aturan integritas Trash (melepas relasi Kelas)
+ * dijalankan oleh event model dan harus berlaku juga saat seeding.
+ */
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
      * Seed the application's database.
      */

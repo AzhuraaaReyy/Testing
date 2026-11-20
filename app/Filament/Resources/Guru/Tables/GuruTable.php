@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources\Guru\Tables;
 
+use App\Filament\Forms\AturanFormRequest;
 use App\Filament\Forms\Components\KelasAktifSelect;
+use App\Http\Requests\DataMaster\GuruRequest;
 use App\Models\Guru;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -37,8 +39,11 @@ class GuruTable
                 // Guru tidak boleh aktif kembali tanpa minimal satu Kelas (PRD 7.6).
                 RestoreAction::make()
                     ->modalDescription('Pilih minimal satu Kelas aktif untuk Guru ini sebelum dipulihkan.')
-                    ->schema([KelasAktifSelect::make('kelas')->label('Kelas yang Diajar')->multiple()])
-                    ->using(fn (Guru $record, array $data): bool => $record->pulihkanKeKelas(array_map(intval(...), $data['kelas']))),
+                    ->schema(AturanFormRequest::terapkan(
+                        [KelasAktifSelect::make('kelas')->label('Kelas yang Diajar')->multiple()],
+                        fn (): array => GuruRequest::aturanPemulihan(),
+                    ))
+                    ->using(fn (Guru $record, array $data): bool => $record->pulihkanKeKelas(array_values(array_map(intval(...), $data['kelas'])))),
             ]);
     }
 }

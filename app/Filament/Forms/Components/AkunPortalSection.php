@@ -2,6 +2,8 @@
 
 namespace App\Filament\Forms\Components;
 
+use App\Filament\Forms\AturanFormRequest;
+use App\Http\Requests\DataMaster\AkunPortalRequest;
 use App\Models\User;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
@@ -29,22 +31,20 @@ class AkunPortalSection extends Section
             ->mutateRelationshipDataBeforeCreateUsing($namaProfil)
             ->mutateRelationshipDataBeforeSaveUsing($namaProfil)
             ->columns(2)
-            ->schema([
+            // Aturan validasi: App\Http\Requests\DataMaster\AkunPortalRequest.
+            ->schema(AturanFormRequest::terapkan([
                 TextInput::make('email')
                     ->label('Email')
-                    ->email()
-                    ->maxLength(255)
-                    ->unique(ignoreRecord: true)
+                    ->type('email')
+                    // Tanda * pada Password ikut berubah begitu email diisi.
                     ->live(onBlur: true),
                 TextInput::make('password')
                     ->label('Password')
                     ->password()
                     ->revealable()
                     ->autocomplete('new-password')
-                    ->minLength(8)
-                    ->required(fn (Get $get, ?User $record): bool => filled($get('email')) && $record === null)
                     ->dehydrated(fn (?string $state): bool => filled($state))
                     ->helperText(fn (?User $record): ?string => $record ? 'Kosongkan bila tidak ingin mengubah password.' : null),
-            ]);
+            ], fn (?User $record = null, ?Get $get = null): array => AkunPortalRequest::aturan($record, $get?->__invoke('email'))));
     }
 }

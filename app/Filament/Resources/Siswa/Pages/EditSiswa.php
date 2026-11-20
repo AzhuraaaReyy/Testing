@@ -2,18 +2,10 @@
 
 namespace App\Filament\Resources\Siswa\Pages;
 
+use App\Filament\Resources\Pages\EditDataMasterRecord;
 use App\Filament\Resources\Siswa\SiswaResource;
-use Filament\Actions\ViewAction;
-use Filament\Resources\Pages\EditRecord;
 
-class EditSiswa extends EditRecord
+class EditSiswa extends EditDataMasterRecord
 {
     protected static string $resource = SiswaResource::class;
-
-    protected function getHeaderActions(): array
-    {
-        return [
-            ViewAction::make(),
-        ];
-    }
 }

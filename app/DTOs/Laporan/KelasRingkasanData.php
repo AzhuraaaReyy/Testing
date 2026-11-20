@@ -45,15 +45,15 @@ final readonly class KelasRingkasanData
     /**
      * Diurutkan di PHP (bukan SQL) agar hasilnya sama di semua driver/collation.
      *
-     * @param  Collection<int, Siswa|Guru>  $models
+     * @param  Collection<int, Siswa>|Collection<int, Guru>  $models
      * @return list<string>
      */
     private static function namaTerurut(Collection $models): array
     {
-        return $models
-            ->pluck('nama')
-            ->sort(fn (string $a, string $b): int => strnatcasecmp($a, $b))
-            ->values()
-            ->all();
+        $nama = $models->map(fn (Siswa|Guru $model): string => $model->nama)->all();
+
+        usort($nama, strnatcasecmp(...));
+
+        return $nama;
     }
 }

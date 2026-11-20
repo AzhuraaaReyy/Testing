@@ -44,11 +44,15 @@ final class GetLaporanKelasAction
         $relasi = [];
 
         if ($jenis->menampilkanSiswa()) {
-            $relasi['siswa'] = fn (Relation $query) => $query->getQuery()->select(['siswa.id', 'siswa.nama', 'siswa.kelas_id']);
+            $relasi['siswa'] = function (Relation $query): void {
+                $query->getQuery()->select(['siswa.id', 'siswa.nama', 'siswa.kelas_id']);
+            };
         }
 
         if ($jenis->menampilkanGuru()) {
-            $relasi['guru'] = fn (Relation $query) => $query->getQuery()->select(['guru.id', 'guru.nama']);
+            $relasi['guru'] = function (Relation $query): void {
+                $query->getQuery()->select(['guru.id', 'guru.nama']);
+            };
         }
 
         return $relasi;

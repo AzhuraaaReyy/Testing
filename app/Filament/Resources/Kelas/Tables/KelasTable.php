@@ -19,7 +19,7 @@ class KelasTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->urutanTampilan())
+            ->modifyQueryUsing(self::urutkan(...))
             ->columns([
                 TextColumn::make('nama_kelas')->label('Nama Kelas'),
                 TextColumn::make('tingkat')->label('Tingkat')->badge(),
@@ -36,5 +36,14 @@ class KelasTable
                 // Relasi lama tidak dikembalikan otomatis (PRD 6.6).
                 RestoreAction::make(),
             ]);
+    }
+
+    /**
+     * @param  Builder<Kelas>  $query
+     * @return Builder<Kelas>
+     */
+    private static function urutkan(Builder $query): Builder
+    {
+        return $query->urutanTampilan();
     }
 }

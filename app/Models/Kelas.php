@@ -84,8 +84,12 @@ class Kelas extends Model
     #[Scope]
     protected function urutanTampilan(Builder $query): void
     {
+        // Tingkat diurutkan sesuai urutan enum, bukan alfabet ("XI" < "XII" < "X" sebagai teks).
+        // CASE portabel MySQL/SQLite; nilai lewat binding sehingga SQL tetap literal.
+        $cabang = implode(' ', array_fill(0, count(Tingkat::cases()), 'WHEN ? THEN ?'));
+
         $query
-            ->orderByRaw(Tingkat::orderBySql($query->qualifyColumn('tingkat')))
+            ->orderByRaw("CASE kelas.tingkat {$cabang} ELSE ? END", Tingkat::bindingUrutan())
             ->orderBy($query->qualifyColumn('jurusan'))
             ->orderBy($query->qualifyColumn('nama_kelas'));
     }

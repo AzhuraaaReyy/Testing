@@ -8,6 +8,8 @@ use Filament\Support\Icons\Heroicon;
  * Satu set ikon untuk seluruh aplikasi: Heroicons (set bawaan Filament), sehingga panel Admin
  * dan portal Blade memakai ikon yang sama. Nama case bersifat semantik; komponen Blade
  * <x-atoms.icon> dan Resource/Page Filament sama-sama membaca ikon dari enum ini.
+ *
+ * Cermin TypeScript: resources/js/types/contracts.ts → ICON.
  */
 enum Icon: string
 {

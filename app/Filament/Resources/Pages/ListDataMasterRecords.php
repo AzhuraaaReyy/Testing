@@ -2,12 +2,16 @@
 
 namespace App\Filament\Resources\Pages;
 
+use App\Models\Guru;
+use App\Models\Kelas;
+use App\Models\Siswa;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Contracts\Pagination\CursorPaginator;
 use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
@@ -35,7 +39,8 @@ abstract class ListDataMasterRecords extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()->label('Tambah '.static::getResource()::getModelLabel()),
+            // Label "Tambah :label" dari lang/vendor/filament-actions/id/create.php.
+            CreateAction::make(),
         ];
     }
 
@@ -46,10 +51,23 @@ abstract class ListDataMasterRecords extends ListRecords
     {
         return [
             'aktif' => Tab::make('Aktif'),
-            'trash' => Tab::make('Trash')->modifyQueryUsing(fn (Builder $query): Builder => $query->onlyTrashed()),
+            'trash' => Tab::make('Trash')->modifyQueryUsing(self::hanyaTrash(...)),
         ];
     }
 
+    /**
+     * @param  Builder<Siswa>|Builder<Kelas>|Builder<Guru>  $query
+     * @return Builder<Siswa>|Builder<Kelas>|Builder<Guru>
+     */
+    private static function hanyaTrash(Builder $query): Builder
+    {
+        return $query->onlyTrashed();
+    }
+
+    /**
+     * @param  Builder<Model>  $query
+     * @return Paginator<int, Model>|CursorPaginator<int, Model>
+     */
     protected function paginateTableQuery(Builder $query): Paginator|CursorPaginator
     {
         $records = parent::paginateTableQuery(clone $query);

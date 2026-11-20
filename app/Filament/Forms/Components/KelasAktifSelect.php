@@ -7,8 +7,8 @@ use Filament\Forms\Components\Select;
 
 /**
  * Pilihan Kelas untuk form Siswa/Guru dan dialog pemulihan dari Trash (PRD 5.2, 7.2, 13.2):
- * searchable, hanya Kelas aktif (validasi "in" bawaan Select menolak Kelas di Trash),
- * dan terurut Tingkat → Jurusan → Nama Kelas.
+ * searchable, hanya Kelas aktif, terurut Tingkat → Jurusan → Nama Kelas.
+ * Aturan validasi (wajib, Kelas aktif) berasal dari SiswaRequest/GuruRequest via AturanFormRequest.
  */
 class KelasAktifSelect extends Select
 {
@@ -18,7 +18,6 @@ class KelasAktifSelect extends Select
 
         $this
             ->label('Kelas')
-            ->required()
             ->searchable()
             ->preload()
             ->options(fn (): array => Kelas::query()->urutanTampilan()->pluck('nama_kelas', 'id')->all());

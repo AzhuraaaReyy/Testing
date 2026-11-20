@@ -7,8 +7,8 @@ use App\Enums\Role;
 use App\Filament\Pages\Auth\Login;
 use App\Http\Middleware\PreventSensitiveCaching;
 use Filament\Actions\Action;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\RestoreAction;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -17,6 +17,8 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Notifications\Notification;
 use Filament\Panel;
 use Filament\PanelProvider;
+use Filament\Resources\Pages\CreateRecord;
+use Filament\Schemas\Components\Form;
 use Filament\Support\Colors\Color;
 use Filament\Tables\Table;
 use Filament\View\PanelsRenderHook;
@@ -39,12 +41,24 @@ class AdminPanelProvider extends PanelProvider
      */
     public function boot(): void
     {
+        // Label & notifikasi aksi (Tambah/Detail/Edit/Hapus/Pulihkan) diatur lewat terjemahan:
+        // lang/vendor/filament-actions/id dan lang/vendor/filament-panels/id.
+
         // 10 data per halaman tanpa pilihan jumlah (PRD 15.2); satu opsi = pemilih disembunyikan.
         Table::configureUsing(fn (Table $table): Table => $table->paginated([10]));
 
-        // Label aksi sesuai PRD 14.1: Detail, Edit, Hapus.
-        ViewAction::configureUsing(fn (ViewAction $action): ViewAction => $action->label('Detail'));
-        EditAction::configureUsing(fn (EditAction $action): EditAction => $action->label('Edit'));
+        // Konfirmasi yang menjelaskan akibatnya, bukan "Apakah Anda yakin ingin melakukan ini?" (PRD 14.3–14.4).
+        DeleteAction::configureUsing(fn (DeleteAction $action): DeleteAction => $action
+            ->modalDescription('Data akan dipindahkan ke Trash dan dapat dipulihkan kembali.'));
+        RestoreAction::configureUsing(fn (RestoreAction $action): RestoreAction => $action
+            ->modalDescription('Data akan dipulihkan dari Trash dan kembali aktif.'));
+
+        // Setelah tambah, Admin kembali ke daftar (PRD 5.4): tanpa "Simpan & tambah lainnya".
+        CreateRecord::disableCreateAnother();
+
+        // Matikan validasi bawaan browser (pesannya mengikuti bahasa browser); seluruh pesan
+        // validasi berasal dari FormRequest dalam Bahasa Indonesia (PRD 14.7).
+        Form::configureUsing(fn (Form $form): Form => $form->extraAttributes(['novalidate' => true], merge: true));
     }
 
     public function panel(Panel $panel): Panel
