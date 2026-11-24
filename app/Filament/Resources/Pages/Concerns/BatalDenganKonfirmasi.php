@@ -47,7 +47,7 @@ trait BatalDenganKonfirmasi
             return true;
         }
 
-         $dataBersih = (string) str(json_encode($this->data, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR))->replace('\\', '');
+        $dataBersih = (string) str(json_encode($this->data, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR))->replace('\\', '');
         $hashSekarang = hash('sha256', $dataBersih);
         return $hashSekarang !== $this->savedDataHash;
     }
